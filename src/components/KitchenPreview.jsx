@@ -15,7 +15,7 @@ function addBox(scene, { x, y, z, width, height, depth, color, roughness = 0.72 
   return mesh;
 }
 
-export default function KitchenPreview({ layout, material, wallLength, scheme }) {
+export default function KitchenPreview({ layout, material, wallLength, sideLength = 2200, scheme }) {
   const canvasRef = useRef(null);
 
   const modules = useMemo(() => layout.map((id) => moduleById.get(id)).filter(Boolean), [layout]);
@@ -111,22 +111,23 @@ export default function KitchenPreview({ layout, material, wallLength, scheme })
     });
 
     if (scheme === 'corner') {
+      const sideDepth = Math.min(sideLength / 1000, 3);
       addBox(scene, {
-        x: 2.25,
+        x: 2.2,
         y: 0.41,
-        z: 0.72,
+        z: sideDepth / 2 - 0.08,
         width: 0.58,
         height: 0.82,
-        depth: 1.28,
+        depth: sideDepth,
         color: material.face,
       });
       addBox(scene, {
-        x: 2.25,
+        x: 2.2,
         y: 0.855,
-        z: 0.72,
+        z: sideDepth / 2 - 0.08,
         width: 0.64,
         height: 0.07,
-        depth: 1.34,
+        depth: sideDepth + 0.06,
         color: material.counter,
       });
     }
@@ -158,7 +159,7 @@ export default function KitchenPreview({ layout, material, wallLength, scheme })
         if (object.material) object.material.dispose();
       });
     };
-  }, [modules, material, wallLength, scheme]);
+  }, [modules, material, wallLength, sideLength, scheme]);
 
   return (
     <div className="preview-shell" aria-label="3D превью кухни">
