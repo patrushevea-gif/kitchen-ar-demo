@@ -22,7 +22,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import KitchenPreview from './components/KitchenPreview.jsx';
-import { defaultLayout, kitchenModules, materials } from './data/kitchen.js';
+import { defaultLayout, kitchenModules, kitchenSizePresets, materials } from './data/kitchen.js';
 
 const heroImage = 'https://kitchenrm.ru/wa-data/public/shop/products/03/19/1903/images/6159/6159.970.jpg';
 
@@ -83,13 +83,16 @@ function moveItem(items, index, direction) {
 }
 
 export default function App() {
-  const [wallLength, setWallLength] = useState(2400);
+  const [sizePresetId, setSizePresetId] = useState('original');
   const [scheme, setScheme] = useState('corner');
   const [layout, setLayout] = useState(defaultLayout);
   const [materialId, setMaterialId] = useState('graphite-quartz');
   const [mode, setMode] = useState('layout');
 
   const material = materials.find((item) => item.id === materialId) ?? materials[0];
+  const sizePreset =
+    kitchenSizePresets.find((item) => item.id === sizePresetId) ?? kitchenSizePresets[1];
+  const wallLength = sizePreset.mainWall;
 
   const totalWidth = useMemo(
     () =>
@@ -104,8 +107,13 @@ export default function App() {
   const addModule = (id) => setLayout((items) => [...items, id]);
   const removeModule = (index) => setLayout((items) => items.filter((_, itemIndex) => itemIndex !== index));
   const shiftModule = (index, direction) => setLayout((items) => moveItem(items, index, direction));
+  const applyPreset = (preset) => {
+    setSizePresetId(preset.id);
+    setLayout(preset.layout);
+    setScheme('corner');
+  };
 
-  const requestText = `${pilotKitchen.title}, ${scheme === 'straight' ? 'прямая' : 'угловая'} схема, стена ${wallLength} мм, материал ${material.name}, модули: ${selectedModules
+  const requestText = `${pilotKitchen.title}, ${scheme === 'straight' ? 'прямая' : 'угловая'} схема, размер ${sizePreset.mainWall}x${sizePreset.sideWall} мм, материал ${material.name}, модули: ${selectedModules
     .map((item) => item.title)
     .join(', ')}`;
 
@@ -251,18 +259,21 @@ export default function App() {
             <h2>Соберите примерную кухню</h2>
           </div>
 
-          <label className="range-control">
-            <span>Длина основной стены</span>
-            <strong>{wallLength} мм</strong>
-            <input
-              type="range"
-              min="2200"
-              max="4200"
-              step="100"
-              value={wallLength}
-              onChange={(event) => setWallLength(Number(event.target.value))}
-            />
-          </label>
+          <div className="preset-list">
+            <span className="control-label">Размер кухни для демо</span>
+            {kitchenSizePresets.map((preset) => (
+              <button
+                key={preset.id}
+                className={preset.id === sizePresetId ? 'preset-card active' : 'preset-card'}
+                type="button"
+                onClick={() => applyPreset(preset)}
+              >
+                <strong>{preset.title}</strong>
+                <span>{preset.mainWall}x{preset.sideWall} мм</span>
+                <small>{preset.description}</small>
+              </button>
+            ))}
+          </div>
 
           <div className="segmented" aria-label="Схема кухни">
             <button
@@ -336,7 +347,13 @@ export default function App() {
               {totalWidth} / {wallLength} мм
             </span>
           </div>
-          <KitchenPreview layout={layout} material={material} wallLength={wallLength} scheme={scheme} />
+          <KitchenPreview
+            layout={layout}
+            material={material}
+            wallLength={wallLength}
+            sideLength={sizePreset.sideWall}
+            scheme={scheme}
+          />
           <div className="ar-row">
             <button className="button primary" type="button">
               <Camera size={18} /> Подготовить AR
@@ -394,9 +411,10 @@ export default function App() {
       <section id="request" className="request-section">
         <div>
           <p className="eyebrow">Заявка менеджеру</p>
-          <h2>Короткая заявка по сборке</h2>
+          <h2>Клиент отправляет уже собранный вариант</h2>
           <p>
-            Форма не спорит с конструктором: она просто передает менеджеру параметры выбранной кухни.
+            Менеджер получает размеры, материал, список модулей и сценарий AR-просмотра. Это уже
+            не “просто картинка”, а подготовленная заявка на расчет.
           </p>
         </div>
         <form className="request-form">
@@ -410,7 +428,7 @@ export default function App() {
           </label>
           <label>
             Комментарий к расчету
-            <textarea value={requestText} readOnly rows="4" />
+            <textarea value={requestText} readOnly rows="5" />
           </label>
           <button className="button primary" type="button">
             <Mail size={18} /> Отправить заявку
