@@ -163,7 +163,7 @@ img {
   position: absolute;
   z-index: 1;
   left: max(1.5rem, calc((100vw - 1180px) / 2 + 1.5rem));
-  bottom: 3.4rem;
+  top: 8.8rem;
   max-width: 560px;
   color: white;
 }
@@ -190,7 +190,7 @@ p {
 
 h1 {
   margin-bottom: 0.8rem;
-  font-size: clamp(2rem, 4.2vw, 3.7rem);
+  font-size: clamp(1.9rem, 3.6vw, 3.15rem);
   line-height: 1.05;
   letter-spacing: 0;
 }
@@ -590,7 +590,7 @@ p {
 
   .hero-copy {
     right: 1.5rem;
-    bottom: 2.6rem;
+    top: 8rem;
   }
 
   .benefits,
