@@ -1,5 +1,14 @@
 export const kitchenModules = [
   {
+    id: 'tall-600',
+    title: 'Пенал 600',
+    width: 600,
+    height: 2140,
+    depth: 580,
+    type: 'tall',
+    label: 'пенал',
+  },
+  {
     id: 'base-600',
     title: 'Тумба 600',
     width: 600,
@@ -9,15 +18,6 @@ export const kitchenModules = [
     label: '600',
   },
   {
-    id: 'drawers-800',
-    title: 'Ящики 800',
-    width: 800,
-    height: 820,
-    depth: 560,
-    type: 'base',
-    label: '800',
-  },
-  {
     id: 'sink-800',
     title: 'Мойка 800',
     width: 800,
@@ -25,6 +25,15 @@ export const kitchenModules = [
     depth: 560,
     type: 'base',
     label: 'мойка',
+  },
+  {
+    id: 'drawers-800',
+    title: 'Ящики 800',
+    width: 800,
+    height: 820,
+    depth: 560,
+    type: 'base',
+    label: '800',
   },
   {
     id: 'oven-600',
@@ -53,28 +62,26 @@ export const kitchenModules = [
     type: 'wall',
     label: 'витр.',
   },
-  {
-    id: 'tall-600',
-    title: 'Пенал 600',
-    width: 600,
-    height: 2140,
-    depth: 580,
-    type: 'tall',
-    label: 'пенал',
-  },
 ];
 
 export const materials = [
   {
+    id: 'graphite-quartz',
+    name: 'Графит / Кварц черный',
+    face: '#2f3032',
+    body: '#f4f1ea',
+    counter: '#9b7a55',
+  },
+  {
     id: 'graphite',
-    name: 'Лайн Графит',
+    name: 'Графит матовый',
     face: '#343434',
     body: '#f4f1ea',
     counter: '#b9aa95',
   },
   {
     id: 'white-oak',
-    name: 'Белый / Дуб',
+    name: 'Белый / Дуб Вотан',
     face: '#f7f4ee',
     body: '#e7dcc9',
     counter: '#9b7a55',
