@@ -2,7 +2,7 @@
   color: #2d2723;
   background: #f7f3ed;
   font-family:
-    Inter, Arial, Helvetica, sans-serif;
+    Arial, Helvetica, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --accent: #c82032;
@@ -12,7 +12,7 @@
   --line: #e5ddd2;
   --paper: #fffaf3;
   --soft: #efe7dc;
-  --shadow: 0 18px 46px rgba(67, 52, 39, 0.13);
+  --shadow: 0 8px 22px rgba(67, 52, 39, 0.1);
 }
 
 * {
@@ -64,11 +64,11 @@ img {
 .topbar {
   display: flex;
   justify-content: center;
-  gap: 2rem;
-  padding: 0.55rem 1.5rem;
+  gap: 1.6rem;
+  padding: 0.42rem 1.5rem;
   color: #f8efe5;
   background: #3a332d;
-  font-size: 0.84rem;
+  font-size: 0.78rem;
 }
 
 .topbar span,
@@ -90,7 +90,7 @@ img {
   justify-content: space-between;
   max-width: 1180px;
   margin: 0 auto;
-  padding: 1rem 1.5rem;
+  padding: 0.72rem 1.5rem;
 }
 
 .brand {
@@ -100,8 +100,8 @@ img {
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   color: white;
   background: var(--accent);
   border-radius: 5px;
@@ -113,16 +113,22 @@ img {
   display: block;
 }
 
+.brand strong {
+  font-size: 1rem;
+}
+
 .brand small {
   margin-top: 0.12rem;
   color: var(--muted);
+  font-size: 0.78rem;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 1.35rem;
+  gap: 1.15rem;
   color: #524940;
+  font-size: 0.9rem;
   font-weight: 700;
 }
 
@@ -133,7 +139,7 @@ img {
 .hero {
   position: relative;
   display: grid;
-  min-height: min(720px, calc(100vh - 72px));
+  min-height: min(520px, calc(100vh - 90px));
   overflow: hidden;
   background: #2e2925;
 }
@@ -141,7 +147,7 @@ img {
 .hero img {
   width: 100%;
   height: 100%;
-  min-height: 620px;
+  min-height: 500px;
   object-fit: cover;
   opacity: 0.72;
 }
@@ -157,15 +163,15 @@ img {
   position: absolute;
   z-index: 1;
   left: max(1.5rem, calc((100vw - 1180px) / 2 + 1.5rem));
-  bottom: 5rem;
-  max-width: 650px;
+  bottom: 3.4rem;
+  max-width: 560px;
   color: white;
 }
 
 .eyebrow {
   margin: 0 0 0.7rem;
   color: var(--accent);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -183,51 +189,53 @@ p {
 }
 
 h1 {
-  margin-bottom: 1rem;
-  font-size: clamp(2.6rem, 7vw, 5.8rem);
-  line-height: 0.95;
+  margin-bottom: 0.8rem;
+  font-size: clamp(2rem, 4.2vw, 3.7rem);
+  line-height: 1.05;
   letter-spacing: 0;
 }
 
 h2 {
-  margin-bottom: 0.7rem;
-  font-size: clamp(1.7rem, 3vw, 2.55rem);
-  line-height: 1.08;
+  margin-bottom: 0.55rem;
+  font-size: clamp(1.45rem, 2.1vw, 2rem);
+  line-height: 1.18;
   letter-spacing: 0;
 }
 
 h3 {
-  margin-bottom: 0.5rem;
-  font-size: 1.14rem;
+  margin-bottom: 0.45rem;
+  font-size: 1rem;
 }
 
 p {
   color: var(--muted);
-  line-height: 1.6;
+  font-size: 0.94rem;
+  line-height: 1.5;
 }
 
 .hero-copy p:not(.eyebrow) {
   max-width: 560px;
   color: rgba(255, 255, 255, 0.86);
-  font-size: 1.15rem;
+  font-size: 1rem;
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
-  margin-top: 1.6rem;
+  margin-top: 1.2rem;
 }
 
 .button {
   justify-content: center;
   gap: 0.55rem;
-  min-height: 48px;
-  padding: 0.85rem 1.15rem;
+  min-height: 42px;
+  padding: 0.7rem 1rem;
   border: 1px solid transparent;
   border-radius: 5px;
   cursor: pointer;
-  font-weight: 900;
+  font-size: 0.9rem;
+  font-weight: 800;
 }
 
 .button.primary {
@@ -251,7 +259,7 @@ p {
 .request-section {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 4.8rem 1.5rem 0;
+  padding: 3rem 1.5rem 0;
 }
 
 .benefits {
@@ -263,11 +271,11 @@ p {
 }
 
 .benefits article {
-  min-height: 132px;
+  min-height: 104px;
   flex-direction: column;
   justify-content: center;
-  gap: 0.45rem;
-  padding: 1rem;
+  gap: 0.32rem;
+  padding: 0.85rem;
   background: var(--paper);
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
@@ -275,16 +283,19 @@ p {
 
 .benefits svg {
   color: var(--accent);
+  width: 24px;
+  height: 24px;
 }
 
 .benefits span {
   color: var(--muted);
+  font-size: 0.82rem;
   text-align: center;
 }
 
 .section-heading {
   max-width: 720px;
-  margin-bottom: 1.8rem;
+  margin-bottom: 1.25rem;
 }
 
 .section-heading.compact {
@@ -296,7 +307,7 @@ p {
 .request-section {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
-  gap: 1.4rem;
+  gap: 1rem;
 }
 
 .product-card,
@@ -317,7 +328,7 @@ p {
 
 .product-card img {
   height: 100%;
-  min-height: 270px;
+  min-height: 230px;
   object-fit: cover;
 }
 
@@ -325,7 +336,7 @@ p {
 .workflow-card,
 .panel,
 .request-section {
-  padding: 1.4rem;
+  padding: 1.1rem;
 }
 
 .inline-button,
@@ -340,13 +351,16 @@ p {
 }
 
 .inline-button {
-  min-height: 40px;
-  padding: 0.65rem 0.9rem;
+  min-height: 36px;
+  padding: 0.55rem 0.8rem;
   color: var(--accent);
+  font-size: 0.88rem;
 }
 
 .workflow-card svg {
   color: var(--accent);
+  width: 28px;
+  height: 28px;
 }
 
 .constructor {
@@ -360,8 +374,8 @@ p {
 .range-control {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 0.7rem;
-  margin-bottom: 1.2rem;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
   font-weight: 800;
 }
 
@@ -375,14 +389,15 @@ p {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.45rem;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
   padding: 0.35rem;
   background: var(--soft);
   border-radius: 6px;
 }
 
 .segmented button {
-  min-height: 42px;
+  min-height: 38px;
+  font-size: 0.88rem;
 }
 
 .segmented button.active {
@@ -394,16 +409,16 @@ p {
   display: block;
   margin-bottom: 0.55rem;
   color: var(--muted);
-  font-size: 0.82rem;
-  font-weight: 900;
+  font-size: 0.74rem;
+  font-weight: 800;
   text-transform: uppercase;
 }
 
 .module-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.2rem;
+  gap: 0.42rem;
+  margin-bottom: 1rem;
 }
 
 .module-list .control-label,
@@ -413,8 +428,9 @@ p {
 
 .module-chip {
   gap: 0.4rem;
-  min-height: 38px;
-  padding: 0.55rem 0.75rem;
+  min-height: 34px;
+  padding: 0.48rem 0.65rem;
+  font-size: 0.85rem;
 }
 
 .module-chip:hover,
@@ -437,8 +453,9 @@ p {
   grid-template-columns: 24px 1fr;
   align-items: center;
   gap: 0.65rem;
-  min-height: 42px;
-  padding: 0.5rem 0.7rem;
+  min-height: 38px;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.86rem;
   text-align: left;
 }
 
@@ -465,12 +482,13 @@ p {
 .status {
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
-  padding: 0.35rem 0.65rem;
+  min-height: 30px;
+  padding: 0.28rem 0.55rem;
   color: #1c6b43;
   background: #e4f5eb;
   border-radius: 5px;
-  font-weight: 900;
+  font-size: 0.86rem;
+  font-weight: 800;
 }
 
 .status.warning {
@@ -480,7 +498,7 @@ p {
 
 .preview-shell {
   position: relative;
-  height: 430px;
+  height: 360px;
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(239, 231, 220, 0.9)),
@@ -498,12 +516,13 @@ p {
   position: absolute;
   left: 1rem;
   bottom: 1rem;
-  padding: 0.45rem 0.7rem;
+  padding: 0.38rem 0.6rem;
   color: #62584f;
   background: rgba(255, 250, 243, 0.88);
   border: 1px solid rgba(229, 221, 210, 0.9);
   border-radius: 5px;
-  font-weight: 900;
+  font-size: 0.82rem;
+  font-weight: 800;
 }
 
 .ar-row {
@@ -517,8 +536,8 @@ p {
 }
 
 .request-section {
-  margin-top: 4.8rem;
-  margin-bottom: 4.8rem;
+  margin-top: 3rem;
+  margin-bottom: 3.5rem;
   align-items: start;
 }
 
@@ -531,7 +550,8 @@ p {
   display: grid;
   gap: 0.35rem;
   color: var(--muted);
-  font-weight: 800;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .request-form input,
@@ -539,7 +559,7 @@ p {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 5px;
-  padding: 0.78rem 0.85rem;
+  padding: 0.68rem 0.75rem;
   color: var(--ink);
   background: white;
 }
@@ -570,7 +590,7 @@ p {
 
   .hero-copy {
     right: 1.5rem;
-    bottom: 3rem;
+    bottom: 2.6rem;
   }
 
   .benefits,
@@ -587,7 +607,7 @@ p {
   }
 
   .hero img {
-    min-height: 620px;
+    min-height: 520px;
   }
 }
 
@@ -606,7 +626,7 @@ p {
   }
 
   .preview-shell {
-    height: 330px;
+    height: 300px;
   }
 
   .button,
