@@ -64,6 +64,43 @@ export const kitchenModules = [
   },
 ];
 
+export const kitchenSizePresets = [
+  {
+    id: 'compact',
+    title: 'Компакт',
+    description: 'Для небольшой кухни',
+    mainWall: 2200,
+    sideWall: 1800,
+    layout: ['base-600', 'sink-800', 'oven-600', 'wall-600', 'wall-glass-800'],
+  },
+  {
+    id: 'original',
+    title: 'Как на сайте',
+    description: 'Графит Турин 2200x2400',
+    mainWall: 2400,
+    sideWall: 2200,
+    layout: ['tall-600', 'base-600', 'sink-800', 'drawers-800', 'oven-600', 'wall-600', 'wall-glass-800'],
+  },
+  {
+    id: 'extended',
+    title: 'Расширенная',
+    description: 'Для просторной кухни',
+    mainWall: 3000,
+    sideWall: 2600,
+    layout: [
+      'tall-600',
+      'base-600',
+      'sink-800',
+      'drawers-800',
+      'drawers-800',
+      'oven-600',
+      'wall-600',
+      'wall-glass-800',
+      'wall-600',
+    ],
+  },
+];
+
 export const materials = [
   {
     id: 'graphite-quartz',
@@ -73,13 +110,6 @@ export const materials = [
     counter: '#9b7a55',
   },
   {
-    id: 'graphite',
-    name: 'Графит матовый',
-    face: '#343434',
-    body: '#f4f1ea',
-    counter: '#b9aa95',
-  },
-  {
     id: 'white-oak',
     name: 'Белый / Дуб Вотан',
     face: '#f7f4ee',
@@ -87,21 +117,12 @@ export const materials = [
     counter: '#9b7a55',
   },
   {
-    id: 'sage',
-    name: 'Шалфей матовый',
-    face: '#6f796b',
-    body: '#f1eee8',
-    counter: '#2f2d2b',
+    id: 'graphite-stone',
+    name: 'Графит / светлый камень',
+    face: '#343434',
+    body: '#f4f1ea',
+    counter: '#c7c0b6',
   },
 ];
 
-export const defaultLayout = [
-  'tall-600',
-  'base-600',
-  'sink-800',
-  'drawers-800',
-  'oven-600',
-  'wall-600',
-  'wall-glass-800',
-  'wall-600',
-];
+export const defaultLayout = kitchenSizePresets[1].layout;
