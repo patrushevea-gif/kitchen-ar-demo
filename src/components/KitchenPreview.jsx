@@ -122,6 +122,21 @@ function createMaterials(source) {
     reveal: new THREE.MeshStandardMaterial({ color: '#101010', roughness: 0.62, metalness: 0.08 }),
     metal: new THREE.MeshStandardMaterial({ color: '#2a2926', roughness: 0.2, metalness: 0.72 }),
     steel: new THREE.MeshStandardMaterial({ color: '#c4c0b8', roughness: 0.18, metalness: 0.75 }),
+    fridge: new THREE.MeshPhysicalMaterial({
+      color: '#bfc0b8',
+      roughness: 0.22,
+      metalness: 0.42,
+      clearcoat: 0.35,
+      clearcoatRoughness: 0.28,
+    }),
+    fridgeDark: new THREE.MeshStandardMaterial({ color: '#262420', roughness: 0.36, metalness: 0.15 }),
+    blackFrame: new THREE.MeshStandardMaterial({ color: '#15130f', roughness: 0.24, metalness: 0.62 }),
+    plant: new THREE.MeshStandardMaterial({ color: '#4b7a3d', roughness: 0.72, metalness: 0 }),
+    plantDark: new THREE.MeshStandardMaterial({ color: '#244c2c', roughness: 0.78, metalness: 0 }),
+    pot: new THREE.MeshStandardMaterial({ color: '#f2eee6', roughness: 0.7, metalness: 0 }),
+    rug: new THREE.MeshStandardMaterial({ color: '#d8caba', roughness: 0.95, metalness: 0 }),
+    book: new THREE.MeshStandardMaterial({ color: '#d7c8a7', roughness: 0.72, metalness: 0 }),
+    brass: new THREE.MeshStandardMaterial({ color: '#b48a42', roughness: 0.28, metalness: 0.5 }),
     ovenGlass: new THREE.MeshPhysicalMaterial({
       color: '#070707',
       roughness: 0.08,
@@ -146,7 +161,15 @@ function createMaterials(source) {
 }
 
 function roundedGeometry(width, height, depth, radius = 0.018, segments = 3) {
-  const safeRadius = Math.max(0.002, Math.min(radius, width / 2 - 0.002, height / 2 - 0.002, depth / 2 - 0.002));
+  const safeRadius = Math.max(
+    0.0005,
+    Math.min(
+      radius,
+      Math.max(0.0005, width / 2 - 0.001),
+      Math.max(0.0005, height / 2 - 0.001),
+      Math.max(0.0005, depth / 2 - 0.001),
+    ),
+  );
   return new RoundedBoxGeometry(width, height, depth, segments, safeRadius);
 }
 
@@ -180,6 +203,25 @@ function addCylinder(parent, { x, y, z, radius = 0.018, length = 0.36, material,
   mesh.receiveShadow = true;
   parent.add(mesh);
   return mesh;
+}
+
+function addPlant(parent, mats, x, y, z, scale = 1) {
+  addCylinder(parent, { x, y, z, radius: 0.055 * scale, length: 0.12 * scale, material: mats.pot, axis: 'y' });
+  for (let i = 0; i < 9; i += 1) {
+    const angle = (i / 9) * Math.PI * 2;
+    const leaf = addBox(parent, {
+      x: x + Math.cos(angle) * 0.04 * scale,
+      y: y + 0.105 * scale + (i % 3) * 0.025 * scale,
+      z: z + Math.sin(angle) * 0.035 * scale,
+      width: 0.028 * scale,
+      height: 0.12 * scale,
+      depth: 0.014 * scale,
+      material: i % 2 ? mats.plant : mats.plantDark,
+      radius: 0.012 * scale,
+    });
+    leaf.rotation.z = -0.45 + (i % 3) * 0.45;
+    leaf.rotation.y = angle;
+  }
 }
 
 function addHandle(parent, mats, x, y, z, width) {
@@ -228,6 +270,52 @@ function addSink(parent, mats, x, y, z, w, d) {
   addCylinder(parent, { x: x + w * 0.19, y: y + 0.13, z: z + d * 0.08, radius: 0.012, length: 0.12, material: mats.steel, axis: 'z' });
 }
 
+function addOpenRack(parent, mats, x, y, z, width = 0.78, height = 0.68, depth = 0.31) {
+  const post = 0.025;
+  const shelf = 0.035;
+  const halfW = width / 2;
+  const halfH = height / 2;
+  const halfD = depth / 2;
+  [-1, 1].forEach((sideX) => {
+    [-1, 1].forEach((sideZ) => {
+      addBox(parent, {
+        x: x + sideX * halfW,
+        y,
+        z: z + sideZ * halfD,
+        width: post,
+        height,
+        depth: post,
+        material: mats.blackFrame,
+        radius: 0.004,
+      });
+    });
+  });
+  [-0.28, 0, 0.28].forEach((offsetY) => {
+    addBox(parent, { x, y: y + offsetY, z, width: width + post, height: shelf, depth, material: mats.counter, radius: 0.006 });
+  });
+  addBox(parent, { x: x - 0.18, y: y + 0.19, z: z + 0.02, width: 0.16, height: 0.19, depth: 0.05, material: mats.book, radius: 0.004 });
+  addBox(parent, { x: x - 0.02, y: y + 0.18, z: z + 0.02, width: 0.05, height: 0.18, depth: 0.08, material: mats.pot, radius: 0.012 });
+  addPlant(parent, mats, x + 0.23, y + 0.19, z + 0.02, 0.65);
+  addBox(parent, { x: x + 0.18, y: y - 0.1, z: z + 0.02, width: 0.2, height: 0.06, depth: 0.13, material: mats.steel, radius: 0.01 });
+}
+
+function addKitchenRail(parent, mats, x, y, z) {
+  addCylinder(parent, { x, y, z, radius: 0.01, length: 1.05, material: mats.blackFrame, axis: 'x' });
+  [-0.35, -0.18, 0.02, 0.24, 0.42].forEach((offset, index) => {
+    addCylinder(parent, { x: x + offset, y: y - 0.07, z, radius: 0.006, length: 0.14, material: mats.blackFrame, axis: 'y' });
+    addBox(parent, {
+      x: x + offset,
+      y: y - 0.16,
+      z: z + 0.02,
+      width: index % 2 ? 0.06 : 0.1,
+      height: 0.08,
+      depth: 0.035,
+      material: index % 2 ? mats.steel : mats.plantDark,
+      radius: 0.006,
+    });
+  });
+}
+
 function addBaseModule(parent, item, mats, x, z = 0) {
   const w = item.width / 1000;
   const d = item.depth / 1000;
@@ -259,9 +347,13 @@ function addTallModule(parent, item, mats, x, z = 0) {
   const h = item.height / 1000;
   const frontZ = z + d / 2 + 0.032;
   addBox(parent, { x, y: h / 2, z, width: w, height: h, depth: d, material: mats.body, radius: 0.016 });
-  addPanel(parent, mats, x, h / 2, frontZ, w - 0.045, h - 0.14);
+  addBox(parent, { x, y: h - 0.11, z: frontZ + 0.005, width: w - 0.06, height: 0.22, depth: 0.05, material: mats.counter, radius: 0.014 });
+  addBox(parent, { x, y: 1.43, z: frontZ + 0.018, width: w - 0.07, height: 0.98, depth: 0.04, material: mats.fridge, radius: 0.018 });
+  addBox(parent, { x, y: 0.54, z: frontZ + 0.018, width: w - 0.07, height: 0.72, depth: 0.04, material: mats.fridge, radius: 0.018 });
+  addBox(parent, { x, y: 1.02, z: frontZ + 0.05, width: w - 0.12, height: 0.024, depth: 0.018, material: mats.fridgeDark, radius: 0.004 });
+  addBox(parent, { x: x - w * 0.31, y: 1.12, z: frontZ + 0.035, width: 0.024, height: 1.56, depth: 0.018, material: mats.counter, radius: 0.006 });
+  addBox(parent, { x: x + w * 0.31, y: 1.12, z: frontZ + 0.035, width: 0.024, height: 1.56, depth: 0.018, material: mats.counter, radius: 0.006 });
   addBox(parent, { x, y: 0.065, z: frontZ - 0.035, width: w * 0.88, height: 0.13, depth: 0.055, material: mats.shadow, radius: 0.006 });
-  addBox(parent, { x, y: 1.14, z: frontZ + 0.062, width: 0.028, height: 1.62, depth: 0.024, material: mats.metal, radius: 0.008 });
 }
 
 function addWallModule(parent, item, mats, x, z = -0.12) {
@@ -274,9 +366,7 @@ function addWallModule(parent, item, mats, x, z = -0.12) {
   addBox(parent, { x, y: y - h / 2 - 0.034, z: frontZ, width: w * 0.92, height: 0.024, depth: 0.024, material: mats.warmLight, radius: 0.004, castShadow: false });
 
   if (item.id.includes('glass')) {
-    addSplitDoors(parent, mats, x, y, frontZ, w, h - 0.075, 2, { glass: true });
-    addBox(parent, { x, y: y - 0.1, z: z + 0.02, width: w - 0.16, height: 0.012, depth: d - 0.08, material: mats.steel, radius: 0.004 });
-    addBox(parent, { x, y: y + 0.16, z: z + 0.02, width: w - 0.16, height: 0.012, depth: d - 0.08, material: mats.steel, radius: 0.004 });
+    addOpenRack(parent, mats, x, y, frontZ - 0.08, w - 0.06, h - 0.05, d - 0.02);
   } else {
     addSplitDoors(parent, mats, x, y, frontZ, w, h - 0.075, w > 0.65 ? 2 : 1);
   }
@@ -288,6 +378,31 @@ function addRoom(scene, mats) {
   addBox(scene, { x: 0, y: 0.66, z: -0.438, width: 7.8, height: 0.68, depth: 0.028, material: mats.backsplash, radius: 0.004, receiveShadow: true });
   addBox(scene, { x: 0, y: 0.315, z: -0.412, width: 7.8, height: 0.028, depth: 0.03, material: mats.steel, radius: 0.004 });
   addBox(scene, { x: 0, y: 1.015, z: -0.412, width: 7.8, height: 0.026, depth: 0.03, material: mats.steel, radius: 0.004 });
+}
+
+function addPhotoReferenceDetails(scene, kitchen, mats) {
+  addKitchenRail(scene, mats, -0.05, 1.02, -0.33);
+  addBox(kitchen, { x: 2.0, y: 0.53, z: 0.38, width: 0.12, height: 0.9, depth: 0.78, material: mats.counter, radius: 0.014 });
+  addBox(kitchen, { x: 1.98, y: 1.42, z: 0.38, width: 0.1, height: 1.06, depth: 0.36, material: mats.counter, radius: 0.012 });
+  addBox(scene, { x: 0.22, y: 0.012, z: 1.25, width: 1.18, height: 0.018, depth: 0.58, material: mats.rug, radius: 0.02 });
+  for (let stripe = -3; stripe <= 3; stripe += 1) {
+    addBox(scene, {
+      x: 0.22 + stripe * 0.15,
+      y: 0.028,
+      z: 1.25,
+      width: 0.012,
+      height: 0.006,
+      depth: 0.5,
+      material: mats.wall,
+      radius: 0.002,
+      castShadow: false,
+    });
+  }
+  addPlant(scene, mats, -2.38, 0.08, 0.98, 1.8);
+  addPlant(scene, mats, 2.38, 0.08, 0.98, 1.8);
+  addBox(scene, { x: -0.42, y: 0.95, z: -0.32, width: 0.08, height: 0.16, depth: 0.06, material: mats.pot, radius: 0.012 });
+  addPlant(scene, mats, -0.42, 1.05, -0.32, 0.65);
+  addBox(scene, { x: 0.24, y: 0.97, z: -0.32, width: 0.18, height: 0.12, depth: 0.08, material: mats.steel, radius: 0.012 });
 }
 
 export default function KitchenPreview({ layout, material, wallLength, sideLength = 2200, scheme }) {
@@ -386,6 +501,8 @@ export default function KitchenPreview({ layout, material, wallLength, sideLengt
       addBaseModule(kitchen, { id: 'side-run', width: 620, height: 820, depth: sideDepth * 1000, type: 'base' }, mats, 1.68, sideDepth / 2 - 0.08);
       addWallModule(kitchen, { id: 'side-wall', width: 620, height: 720, depth: 340, type: 'wall' }, mats, 1.68, 0.75);
     }
+
+    addPhotoReferenceDetails(scene, kitchen, mats);
 
     const resize = () => {
       const rect = canvas.parentElement.getBoundingClientRect();
