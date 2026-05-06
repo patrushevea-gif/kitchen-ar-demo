@@ -217,8 +217,6 @@ function addReferenceDetails(scene, kitchen, mats) {
   [-0.34, -0.12, 0.1, 0.32].forEach((offset) => {
     cyl(scene, { x: -0.05 + offset, y: 0.94, z: -0.33, radius: 0.005, length: 0.12, mat: mats.black, axis: 'y' });
   });
-  box(kitchen, { x: 1.86, y: 0.53, z: 0.38, w: 0.075, h: 0.9, d: 0.72, mat: mats.wood, r: 0.006 });
-  box(kitchen, { x: 1.84, y: 1.42, z: 0.38, w: 0.065, h: 1.02, d: 0.32, mat: mats.wood, r: 0.006 });
   box(scene, { x: 0.18, y: 0.012, z: 1.25, w: 1.14, h: 0.018, d: 0.58, mat: mats.rug, r: 0.014, shadow: false });
 }
 
@@ -303,8 +301,6 @@ export default function KitchenPreview({ layout, material, wallLength, sideLengt
 
     if (scheme === 'corner') {
       const sideDepth = Math.min(sideLength / 1000, 3);
-      box(scene, { x: 2.24, y: 1.16, z: sideDepth / 2 - 0.02, w: 0.08, h: 2.45, d: sideDepth + 0.34, mat: mats.wall, r: 0.002 });
-      box(scene, { x: 2.19, y: 0.66, z: sideDepth / 2 - 0.02, w: 0.026, h: 0.68, d: sideDepth + 0.24, mat: mats.backsplash, r: 0.002 });
       addBase(kitchen, { id: 'side-run', width: 540, height: 820, depth: sideDepth * 1000, type: 'base' }, mats, 1.82, sideDepth / 2 - 0.08);
       addWall(kitchen, { id: 'side-wall', width: 540, height: 720, depth: 340, type: 'wall' }, mats, 1.82, 0.75);
     }
