@@ -22,13 +22,13 @@ import {
 import KitchenPreview from './components/KitchenPreview.jsx';
 import { defaultLayout, kitchenModules, kitchenSizePresets, materials } from './data/kitchen.js';
 
-const heroImage = 'https://kitchenrm.ru/wa-data/public/shop/products/03/19/1903/images/6159/6159.970.jpg';
+const heroImage = 'https://kitchenrm.ru/wa-data/public/shop/products/03/19/1903/images/18695/18695.970.jpg';
 const modelUrl = '/models/kitchen-rm-demo.glb';
 
 const pilotKitchen = {
-  title: 'Графит Кварц черный Турин',
-  price: 'от 93 000 ₽',
-  source: 'https://kitchenrm.ru/grafit-kvarts-chernyy-turin/',
+  title: 'Кухня «Графит шагрень 2200x2400»',
+  price: 'от 160 000 ₽',
+  source: 'https://kitchenrm.ru/grafit-shagren-2200kh2400/',
 };
 
 const steps = [
