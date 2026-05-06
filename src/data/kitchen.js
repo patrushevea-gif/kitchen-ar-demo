@@ -104,10 +104,10 @@ export const kitchenSizePresets = [
 export const materials = [
   {
     id: 'graphite-quartz',
-    name: 'Графит / Кварц черный',
-    face: '#2f3032',
-    body: '#f4f1ea',
-    counter: '#9b7a55',
+    name: 'Графит шагрень / дерево',
+    face: '#26231f',
+    body: '#342f28',
+    counter: '#a06f3f',
   },
   {
     id: 'white-oak',
@@ -119,8 +119,8 @@ export const materials = [
   {
     id: 'graphite-stone',
     name: 'Графит / светлый камень',
-    face: '#343434',
-    body: '#f4f1ea',
+    face: '#2a2723',
+    body: '#342f28',
     counter: '#c7c0b6',
   },
 ];
