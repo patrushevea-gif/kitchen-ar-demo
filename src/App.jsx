@@ -1,73 +1,41 @@
+import '@google/model-viewer';
 import { useMemo, useState } from 'react';
 import {
-  ArrowLeftRight,
-  Box,
-  Calculator,
   Camera,
-  CheckCircle2,
-  Clock3,
-  Factory,
+  Check,
+  ChevronDown,
+  ChevronUp,
   Grid3X3,
   Mail,
   MapPin,
+  Maximize2,
   MoveLeft,
   MoveRight,
   Palette,
   Phone,
   Plus,
+  QrCode,
   Ruler,
-  ShieldCheck,
   Smartphone,
-  Sparkles,
   Trash2,
 } from 'lucide-react';
 import KitchenPreview from './components/KitchenPreview.jsx';
 import { defaultLayout, kitchenModules, kitchenSizePresets, materials } from './data/kitchen.js';
 
 const heroImage = 'https://kitchenrm.ru/wa-data/public/shop/products/03/19/1903/images/6159/6159.970.jpg';
+const modelUrl = '/models/kitchen-rm-demo.glb';
 
 const pilotKitchen = {
   title: 'Графит Кварц черный Турин',
-  subtitle: 'Пилотная кухня 2200x2400 мм',
   price: 'от 93 000 ₽',
-  source: 'kitchenrm.ru/grafit-kvarts-chernyy-turin',
-  details: [
-    'Размер 2200x2400 мм',
-    'Фасад Графит фреза + Кварц черный фреза',
-    'Столешница Дуб Вотан 26 мм',
-    'Стекло Графит софт, профиль Gola черный',
-  ],
+  source: 'https://kitchenrm.ru/grafit-kvarts-chernyy-turin/',
 };
 
-const modeCards = [
-  {
-    id: 'layout',
-    icon: Grid3X3,
-    title: '3D-компоновка',
-    text: 'Клиент двигает модули на экране, меняет порядок и видит итоговую длину.',
-    status: 'Готовим сегодня',
-  },
-  {
-    id: 'static-ar',
-    icon: Smartphone,
-    title: 'AR готовой кухни',
-    text: 'Завтра подключаем GLB/USDZ: вся собранная кухня открывается в телефоне как один объект.',
-    status: 'Следующий этап',
-  },
-  {
-    id: 'editable-ar',
-    icon: ArrowLeftRight,
-    title: 'AR с движением модулей',
-    text: 'Оставляем как премиум-функцию: сначала докажем ценность простым и стабильным сценарием.',
-    status: 'Версия 2.0',
-  },
-];
-
-const digitizingPlan = [
-  'Собрать точные размеры модулей: ширина, высота, глубина, цоколь, столешница.',
-  'Подготовить GLB-модули с material slots: front, body, countertop, handle, glass.',
-  'Сделать 3 материала фасада и 2 столешницы без дублирования геометрии.',
-  'Экспортировать цельную AR-сцену выбранной компоновки для iPhone и Android.',
+const steps = [
+  { title: 'Размер', icon: Ruler },
+  { title: 'Модули', icon: Grid3X3 },
+  { title: 'Цвет', icon: Palette },
+  { title: 'AR', icon: Smartphone },
 ];
 
 function moduleById(id) {
@@ -82,354 +50,330 @@ function moveItem(items, index, direction) {
   return next;
 }
 
+function buildArLink({ sizePreset, material, scheme, layout }) {
+  if (typeof window === 'undefined') return '#ar-view';
+  const url = new URL(window.location.href);
+  url.hash = 'ar-view';
+  url.searchParams.set('kitchen', 'grafit-turin');
+  url.searchParams.set('size', `${sizePreset.mainWall}x${sizePreset.sideWall}`);
+  url.searchParams.set('scheme', scheme);
+  url.searchParams.set('material', material.id);
+  url.searchParams.set('modules', layout.join(','));
+  return url.toString();
+}
+
 export default function App() {
   const [sizePresetId, setSizePresetId] = useState('original');
   const [scheme, setScheme] = useState('corner');
   const [layout, setLayout] = useState(defaultLayout);
   const [materialId, setMaterialId] = useState('graphite-quartz');
-  const [mode, setMode] = useState('layout');
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [arReady, setArReady] = useState(false);
 
   const material = materials.find((item) => item.id === materialId) ?? materials[0];
   const sizePreset =
     kitchenSizePresets.find((item) => item.id === sizePresetId) ?? kitchenSizePresets[1];
-  const wallLength = sizePreset.mainWall;
+  const selectedModules = layout.map(moduleById).filter(Boolean);
 
-  const totalWidth = useMemo(
+  const baseWidth = useMemo(
     () =>
-      layout
-        .map(moduleById)
-        .filter((item) => item && (item.type === 'base' || item.type === 'tall'))
+      selectedModules
+        .filter((item) => item.type === 'base' || item.type === 'tall')
         .reduce((sum, item) => sum + item.width, 0),
-    [layout],
+    [selectedModules],
   );
 
-  const selectedModules = layout.map(moduleById).filter(Boolean);
-  const addModule = (id) => setLayout((items) => [...items, id]);
-  const removeModule = (index) => setLayout((items) => items.filter((_, itemIndex) => itemIndex !== index));
-  const shiftModule = (index, direction) => setLayout((items) => moveItem(items, index, direction));
-  const applyPreset = (preset) => {
-    setSizePresetId(preset.id);
-    setLayout(preset.layout);
-    setScheme('corner');
-  };
+  const selectedModule = selectedModules[selectedIndex] ?? selectedModules[0];
+  const arUrl = buildArLink({ sizePreset, material, scheme, layout });
+  const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(arUrl)}&size=260&margin=1`;
+  const fitStatus = baseWidth > sizePreset.mainWall ? 'warning' : 'ready';
 
   const requestText = `${pilotKitchen.title}, ${scheme === 'straight' ? 'прямая' : 'угловая'} схема, размер ${sizePreset.mainWall}x${sizePreset.sideWall} мм, материал ${material.name}, модули: ${selectedModules
     .map((item) => item.title)
     .join(', ')}`;
+
+  const applyPreset = (preset) => {
+    setSizePresetId(preset.id);
+    setLayout(preset.layout);
+    setSelectedIndex(0);
+    setArReady(false);
+  };
+
+  const addModule = (id) => {
+    setLayout((items) => [...items, id]);
+    setSelectedIndex(layout.length);
+    setArReady(false);
+  };
+
+  const removeModule = (index) => {
+    setLayout((items) => items.filter((_, itemIndex) => itemIndex !== index));
+    setSelectedIndex((current) => Math.max(0, Math.min(current, layout.length - 2)));
+    setArReady(false);
+  };
+
+  const shiftModule = (index, direction) => {
+    setLayout((items) => moveItem(items, index, direction));
+    setSelectedIndex(Math.max(0, Math.min(index + direction, layout.length - 1)));
+    setArReady(false);
+  };
 
   return (
     <main>
       <header className="site-header">
         <div className="topbar">
           <span>
-            <MapPin size={15} /> Екатеринбург, ул. Холмистая 17В
+            <MapPin size={14} /> Екатеринбург, ул. Холмистая 17В
           </span>
           <span>
-            <Clock3 size={15} /> Пн 11:00-16:30, Вт-Пт 08:00-16:30
-          </span>
-          <span>
-            <Phone size={15} /> +7 (343) 385-70-43
+            <Phone size={14} /> +7 (343) 385-70-43
           </span>
         </div>
         <nav className="nav">
-          <a className="brand" href="#top" aria-label="Кухни РМ">
+          <a className="brand" href="#constructor" aria-label="Кухни РМ">
             <span className="brand-mark">РМ</span>
             <span>
               <strong>Кухни РМ</strong>
-              <small>AR-инструмент продаж</small>
+              <small>3D-конструктор и AR-примерка</small>
             </span>
           </a>
-          <div className="nav-links" aria-label="Разделы">
-            <a href="#catalog">Пилот</a>
-            <a href="#constructor">Компоновка</a>
-            <a href="#digitizing">3D-подготовка</a>
+          <div className="nav-links">
+            <a href="#constructor">Конструктор</a>
+            <a href="#ar-view">AR</a>
             <a href="#request">Заявка</a>
           </div>
         </nav>
       </header>
 
-      <section id="top" className="hero">
-        <img src={heroImage} alt={pilotKitchen.title} />
-        <div className="hero-copy">
-          <p className="eyebrow">Демо для фабрики кухни РМ</p>
-          <h1>{pilotKitchen.title} в AR</h1>
-          <p>
-            Готовим демонстрацию на реальной кухне с сайта: модульная компоновка, смена материалов и
-            сценарий AR-просмотра на телефоне.
-          </p>
-          <div className="hero-actions">
-            <a className="button primary" href="#constructor">
-              <Grid3X3 size={18} /> Открыть компоновку
-            </a>
-            <a className="button ghost" href="#digitizing">
-              <Box size={18} /> План 3D-моделей
+      <section id="constructor" className="workspace">
+        <aside className="product-rail">
+          <img src={heroImage} alt={pilotKitchen.title} />
+          <div>
+            <p className="eyebrow">Демо для фабрики кухни РМ</p>
+            <h1>{pilotKitchen.title}</h1>
+            <strong>{pilotKitchen.price}</strong>
+            <a href={pilotKitchen.source} target="_blank" rel="noreferrer">
+              Оригинал на сайте
             </a>
           </div>
-        </div>
-      </section>
+        </aside>
 
-      <section className="benefits" aria-label="Преимущества">
-        <article>
-          <ShieldCheck />
-          <strong>18 месяцев</strong>
-          <span>гарантия на мебель</span>
-        </article>
-        <article>
-          <Calculator />
-          <strong>Быстрый расчет</strong>
-          <span>заявка с параметрами сборки</span>
-        </article>
-        <article>
-          <Factory />
-          <strong>Свое производство</strong>
-          <span>модули и фасады фабрики</span>
-        </article>
-        <article>
-          <Sparkles />
-          <strong>AR-примерка</strong>
-          <span>показ кухни в комнате клиента</span>
-        </article>
-      </section>
-
-      <section id="catalog" className="catalog-section">
-        <div className="section-heading">
-          <p className="eyebrow">Пилотная модель</p>
-          <h2>{pilotKitchen.subtitle}</h2>
-          <p>
-            Берем кухню средней сложности: есть угловая логика, разные фасады, стекло, профиль и
-            столешница. Этого достаточно, чтобы завтра показать ценность 3D/AR без лишнего R&D.
-          </p>
-        </div>
-        <div className="catalog-grid">
-          <article className="product-card">
-            <img src={heroImage} alt={pilotKitchen.title} />
+        <section className="builder-surface">
+          <div className="builder-header">
             <div>
-              <h3>{pilotKitchen.title}</h3>
-              <strong className="price-line">{pilotKitchen.price}</strong>
-              <ul className="feature-list">
-                {pilotKitchen.details.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-              <a className="inline-button as-link" href={`https://${pilotKitchen.source}`} target="_blank" rel="noreferrer">
-                Оригинал на сайте РМ
-              </a>
+              <p className="eyebrow">Живой конструктор</p>
+              <h2>Соберите кухню и сразу откройте ее в AR</h2>
             </div>
-          </article>
-          <article className="workflow-card">
-            <Ruler />
-            <h3>Что готовим к 3D/AR</h3>
-            <p>
-              Сегодня фиксируем сценарий, список модулей и материалы. Завтра заменяем черновые блоки на
-              реальные GLB/USDZ-модели и подключаем AR-кнопку.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section className="mode-section">
-        <div className="section-heading">
-          <p className="eyebrow">Функционал демо</p>
-          <h2>Три режима, но без лишнего усложнения</h2>
-        </div>
-        <div className="mode-grid">
-          {modeCards.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                className={mode === item.id ? 'mode-card active' : 'mode-card'}
-                type="button"
-                onClick={() => setMode(item.id)}
-              >
-                <Icon />
-                <strong>{item.title}</strong>
-                <span>{item.text}</span>
-                <em>{item.status}</em>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      <section id="constructor" className="constructor">
-        <div className="panel controls-panel">
-          <div className="section-heading compact">
-            <p className="eyebrow">{mode === 'layout' ? '3D-компоновка' : 'AR-сценарий'}</p>
-            <h2>Соберите примерную кухню</h2>
-          </div>
-
-          <div className="preset-list">
-            <span className="control-label">Размер кухни для демо</span>
-            {kitchenSizePresets.map((preset) => (
-              <button
-                key={preset.id}
-                className={preset.id === sizePresetId ? 'preset-card active' : 'preset-card'}
-                type="button"
-                onClick={() => applyPreset(preset)}
-              >
-                <strong>{preset.title}</strong>
-                <span>{preset.mainWall}x{preset.sideWall} мм</span>
-                <small>{preset.description}</small>
-              </button>
-            ))}
-          </div>
-
-          <div className="segmented" aria-label="Схема кухни">
-            <button
-              className={scheme === 'straight' ? 'active' : ''}
-              type="button"
-              onClick={() => setScheme('straight')}
-            >
-              Прямая
-            </button>
-            <button
-              className={scheme === 'corner' ? 'active' : ''}
-              type="button"
-              onClick={() => setScheme('corner')}
-            >
-              Угловая
-            </button>
-          </div>
-
-          <div className="module-list">
-            <span className="control-label">Добавить модуль</span>
-            {kitchenModules.map((item) => (
-              <button key={item.id} className="module-chip" type="button" onClick={() => addModule(item.id)}>
-                <Plus size={16} /> {item.title}
-              </button>
-            ))}
-          </div>
-
-          <div className="layout-stack">
-            <span className="control-label">Порядок модулей</span>
-            {selectedModules.map((item, index) => (
-              <div className="layout-item" key={`${item.id}-${index}`}>
-                <span>{index + 1}</span>
-                <strong>{item.title}</strong>
-                <small>{item.width} мм</small>
-                <button type="button" aria-label="Сдвинуть левее" onClick={() => shiftModule(index, -1)}>
-                  <MoveLeft size={16} />
-                </button>
-                <button type="button" aria-label="Сдвинуть правее" onClick={() => shiftModule(index, 1)}>
-                  <MoveRight size={16} />
-                </button>
-                <button type="button" aria-label="Удалить модуль" onClick={() => removeModule(index)}>
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <div id="materials" className="swatches">
-            <span className="control-label">Материалы фасада</span>
-            {materials.map((item) => (
-              <button
-                key={item.id}
-                className={item.id === materialId ? 'swatch active' : 'swatch'}
-                type="button"
-                onClick={() => setMaterialId(item.id)}
-              >
-                <span style={{ background: item.face }} />
-                {item.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="panel preview-panel">
-          <div className="preview-header">
-            <div>
-              <p className="eyebrow">Черновое 3D-превью</p>
-              <h2>{material.name}</h2>
+            <div className="stepper" aria-label="Сценарий сборки">
+              {steps.map((step, index) => {
+                const Icon = step.icon;
+                return (
+                  <span key={step.title}>
+                    <Icon size={15} />
+                    {index + 1}. {step.title}
+                  </span>
+                );
+              })}
             </div>
-            <span className={totalWidth > wallLength ? 'status warning' : 'status'}>
-              {totalWidth} / {wallLength} мм
-            </span>
           </div>
+
           <KitchenPreview
             layout={layout}
             material={material}
-            wallLength={wallLength}
+            wallLength={sizePreset.mainWall}
             sideLength={sizePreset.sideWall}
             scheme={scheme}
           />
-          <div className="ar-row">
-            <button className="button primary" type="button">
-              <Camera size={18} /> Подготовить AR
-            </button>
-            <p>
-              Сейчас это место под AR-экспорт. Завтра сюда подключаем цельную 3D-сцену кухни для
-              телефона.
-            </p>
+
+          <div className="module-strip" aria-label="Текущая сборка">
+            {selectedModules.map((item, index) => (
+              <button
+                key={`${item.id}-${index}`}
+                className={selectedIndex === index ? 'module-tile active' : 'module-tile'}
+                type="button"
+                onClick={() => setSelectedIndex(index)}
+              >
+                <span>{index + 1}</span>
+                <strong>{item.title}</strong>
+                <small>{item.width} мм</small>
+              </button>
+            ))}
           </div>
-        </div>
+        </section>
+
+        <aside className="control-dock">
+          <section>
+            <div className="dock-title">
+              <Ruler size={18} />
+              <strong>Размер и схема</strong>
+            </div>
+            <div className="preset-grid">
+              {kitchenSizePresets.map((preset) => (
+                <button
+                  key={preset.id}
+                  className={preset.id === sizePresetId ? 'preset-card active' : 'preset-card'}
+                  type="button"
+                  onClick={() => applyPreset(preset)}
+                >
+                  <strong>{preset.title}</strong>
+                  <span>
+                    {preset.mainWall}x{preset.sideWall}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="segmented">
+              <button
+                className={scheme === 'straight' ? 'active' : ''}
+                type="button"
+                onClick={() => {
+                  setScheme('straight');
+                  setArReady(false);
+                }}
+              >
+                Прямая
+              </button>
+              <button
+                className={scheme === 'corner' ? 'active' : ''}
+                type="button"
+                onClick={() => {
+                  setScheme('corner');
+                  setArReady(false);
+                }}
+              >
+                Угловая
+              </button>
+            </div>
+          </section>
+
+          <section>
+            <div className="dock-title">
+              <Grid3X3 size={18} />
+              <strong>Модули</strong>
+            </div>
+            <div className="selected-module">
+              <div>
+                <span>Выбран</span>
+                <strong>{selectedModule?.title}</strong>
+                <small>
+                  {selectedModule?.width}x{selectedModule?.height}x{selectedModule?.depth} мм
+                </small>
+              </div>
+              <div className="icon-actions">
+                <button type="button" aria-label="Влево" onClick={() => shiftModule(selectedIndex, -1)}>
+                  <MoveLeft size={16} />
+                </button>
+                <button type="button" aria-label="Вправо" onClick={() => shiftModule(selectedIndex, 1)}>
+                  <MoveRight size={16} />
+                </button>
+                <button type="button" aria-label="Удалить" onClick={() => removeModule(selectedIndex)}>
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+            <div className="module-picker">
+              {kitchenModules.map((item) => (
+                <button key={item.id} type="button" onClick={() => addModule(item.id)}>
+                  <Plus size={15} />
+                  {item.title}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <div className="dock-title">
+              <Palette size={18} />
+              <strong>Цвет</strong>
+            </div>
+            <div className="swatches">
+              {materials.map((item) => (
+                <button
+                  key={item.id}
+                  className={item.id === materialId ? 'swatch active' : 'swatch'}
+                  type="button"
+                  onClick={() => {
+                    setMaterialId(item.id);
+                    setArReady(false);
+                  }}
+                >
+                  <span style={{ background: item.face }} />
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="ar-dock">
+            <div className="dock-title">
+              <QrCode size={18} />
+              <strong>AR-примерка</strong>
+            </div>
+            <div className={`fit ${fitStatus}`}>
+              {fitStatus === 'ready' ? <Check size={16} /> : <Maximize2 size={16} />}
+              {baseWidth} / {sizePreset.mainWall} мм
+            </div>
+            <button className="button primary" type="button" onClick={() => setArReady(true)}>
+              <Camera size={18} /> Сформировать QR для AR
+            </button>
+          </section>
+        </aside>
       </section>
 
-      <section id="digitizing" className="digitizing-section">
-        <div className="section-heading">
-          <p className="eyebrow">Подготовка к завтрашнему 3D</p>
-          <h2>Что надо оцифровать для одного гарнитура</h2>
+      <section id="ar-view" className={arReady ? 'ar-section visible' : 'ar-section'}>
+        <div className="ar-copy">
+          <p className="eyebrow">AR-сцена текущей сборки</p>
+          <h2>QR открывает модель кухни на телефоне</h2>
           <p>
-            Модель не делаем одним монолитом. Нужна библиотека стандартных модулей плюс материалы,
-            чтобы менять порядок и цвет без повторной генерации всей кухни.
+            На компьютере клиент видит QR. На телефоне открывается эта же сборка и кнопка запуска
+            AR, чтобы поставить кухню в помещении.
           </p>
+          <div className="ar-actions">
+            <a className="button ghost-dark" href={arUrl}>
+              <Smartphone size={18} /> Открыть AR-ссылку
+            </a>
+            <a className="button ghost-dark" href="#request">
+              <Mail size={18} /> Отправить расчет
+            </a>
+          </div>
         </div>
-        <div className="prep-grid">
-          <article>
-            <Box />
-            <h3>Модули</h3>
-            <ul className="feature-list">
-              {kitchenModules.slice(0, 7).map((item) => (
-                <li key={item.id}>
-                  {item.title}: {item.width}x{item.height}x{item.depth} мм
-                </li>
-              ))}
-            </ul>
-          </article>
-          <article>
-            <Palette />
-            <h3>Материалы</h3>
-            <ul className="feature-list">
-              {materials.map((item) => (
-                <li key={item.id}>{item.name}</li>
-              ))}
-            </ul>
-          </article>
-          <article>
-            <CheckCircle2 />
-            <h3>План работ</h3>
-            <ul className="feature-list">
-              {digitizingPlan.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </article>
+        <div className="qr-card">
+          {arReady ? (
+            <img src={qrUrl} alt="QR для открытия AR-модели кухни" />
+          ) : (
+            <button type="button" onClick={() => setArReady(true)}>
+              <QrCode size={42} />
+              Сформировать QR
+            </button>
+          )}
+          <small>Наведите камеру телефона на QR-код</small>
         </div>
+        <model-viewer
+          className="model-viewer"
+          src={modelUrl}
+          ar
+          ar-modes="webxr scene-viewer quick-look"
+          camera-controls
+          auto-rotate
+          shadow-intensity="0.7"
+          exposure="0.95"
+          interaction-prompt="none"
+        >
+          <button className="button primary ar-launch" slot="ar-button">
+            <Camera size={18} /> Смотреть в AR
+          </button>
+        </model-viewer>
       </section>
 
       <section id="request" className="request-section">
-        <div>
-          <p className="eyebrow">Заявка менеджеру</p>
-          <h2>Клиент отправляет уже собранный вариант</h2>
-          <p>
-            Менеджер получает размеры, материал, список модулей и сценарий AR-просмотра. Это уже
-            не “просто картинка”, а подготовленная заявка на расчет.
-          </p>
-        </div>
+        <button className="collapse-button" type="button">
+          <ChevronUp size={16} />
+          Заявка менеджеру
+          <ChevronDown size={16} />
+        </button>
         <form className="request-form">
-          <label>
-            Имя
-            <input placeholder="Иван" />
-          </label>
-          <label>
-            Телефон
-            <input placeholder="+7 ..." />
-          </label>
-          <label>
-            Комментарий к расчету
-            <textarea value={requestText} readOnly rows="5" />
-          </label>
+          <input placeholder="Имя" />
+          <input placeholder="+7 ..." />
+          <textarea value={requestText} readOnly rows="3" />
           <button className="button primary" type="button">
             <Mail size={18} /> Отправить заявку
           </button>
