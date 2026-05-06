@@ -263,12 +263,12 @@ p {
 
 .preview-shell {
   position: relative;
-  height: min(58vh, 520px);
-  min-height: 390px;
+  height: min(64vh, 620px);
+  min-height: 460px;
   overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(239, 230, 218, 0.9)),
-    #efe6da;
+    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.95), rgba(244, 235, 224, 0.42) 34%, transparent 58%),
+    linear-gradient(180deg, #f6efe6 0%, #dfd4c6 100%);
   border: 1px solid var(--line);
   border-radius: 6px;
 }
@@ -276,6 +276,12 @@ p {
 .preview-shell canvas {
   width: 100%;
   height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+
+.preview-shell canvas:active {
+  cursor: grabbing;
 }
 
 .preview-badge {
@@ -289,6 +295,7 @@ p {
   border-radius: 5px;
   font-size: 0.78rem;
   font-weight: 800;
+  backdrop-filter: blur(10px);
 }
 
 .module-strip {
@@ -744,8 +751,8 @@ p {
   }
 
   .preview-shell {
-    height: 360px;
-    min-height: 320px;
+    height: 420px;
+    min-height: 360px;
   }
 
   .stepper {
@@ -774,7 +781,7 @@ p {
   }
 
   .preview-shell {
-    height: 310px;
-    min-height: 300px;
+    height: 360px;
+    min-height: 330px;
   }
 }
