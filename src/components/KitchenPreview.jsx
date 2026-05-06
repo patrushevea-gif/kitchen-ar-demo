@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { kitchenModules } from '../data/kitchen.js';
 
 const moduleById = new Map(kitchenModules.map((item) => [item.id, item]));
@@ -175,8 +176,26 @@ export default function KitchenPreview({ layout, material, wallLength, sideLengt
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+    const cameraTarget = new THREE.Vector3(0.25, 1.08, 0.15);
     camera.position.set(4.35, 2.75, 5.05);
-    camera.lookAt(0.25, 1.08, 0.15);
+    camera.lookAt(cameraTarget);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.copy(cameraTarget);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.enablePan = true;
+    controls.screenSpacePanning = false;
+    controls.minDistance = 2.15;
+    controls.maxDistance = 8.5;
+    controls.minPolarAngle = Math.PI * 0.18;
+    controls.maxPolarAngle = Math.PI * 0.64;
+    controls.minAzimuthAngle = -Math.PI * 0.52;
+    controls.maxAzimuthAngle = Math.PI * 0.58;
+    controls.rotateSpeed = 0.68;
+    controls.zoomSpeed = 0.82;
+    controls.panSpeed = 0.55;
+    controls.update();
 
     const mats = createMaterials(material);
     const kitchen = new THREE.Group();
@@ -235,7 +254,7 @@ export default function KitchenPreview({ layout, material, wallLength, sideLengt
     let frame = 0;
     const animate = () => {
       frame = requestAnimationFrame(animate);
-      kitchen.rotation.y = Math.sin(Date.now() * 0.00035) * 0.03;
+      controls.update();
       renderer.render(scene, camera);
     };
 
@@ -246,6 +265,7 @@ export default function KitchenPreview({ layout, material, wallLength, sideLengt
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener('resize', resize);
+      controls.dispose();
       renderer.dispose();
       scene.traverse((object) => {
         object.geometry?.dispose();
