@@ -60,13 +60,6 @@ function createMaterials(source) {
       clearcoat: 0.06,
       clearcoatRoughness: 0.74,
     }),
-    darkFace: new THREE.MeshPhysicalMaterial({
-      color: '#211f1c',
-      map: faceTexture,
-      roughness: 0.62,
-      metalness: 0.02,
-      clearcoat: 0.04,
-    }),
     body: new THREE.MeshStandardMaterial({ color: source.body, roughness: 0.72, metalness: 0.01 }),
     wood: new THREE.MeshPhysicalMaterial({
       color: source.counter,
@@ -141,7 +134,9 @@ function addBase(parent, item, mats, x, z = 0) {
   const h = item.height / 1000;
   const frontZ = z + d / 2 + 0.032;
   box(parent, { x, y: h / 2, z, w, h, d, mat: mats.body, r: 0.01 });
+  // plinth
   box(parent, { x, y: 0.065, z: frontZ - 0.035, w: w * 0.9, h: 0.13, d: 0.05, mat: mats.black, r: 0.004 });
+  // countertop
   box(parent, { x, y: h + 0.035, z: z + 0.01, w: w + 0.05, h: 0.07, d: d + 0.17, mat: mats.wood, r: 0.014 });
 
   if (item.id === 'drawers-800') {
@@ -151,12 +146,16 @@ function addBase(parent, item, mats, x, z = 0) {
       cyl(parent, { x, y: y + 0.045, z: frontZ + 0.056, radius: 0.008, length: w * 0.62, mat: mats.black });
     }
   } else if (item.id === 'oven-600') {
+    // lower drawer
     frontPanel(parent, mats, x, 0.22, frontZ, w - 0.02, 0.28, 1);
+    // oven glass door
     box(parent, { x, y: 0.58, z: frontZ + 0.012, w: w - 0.08, h: 0.42, d: 0.04, mat: mats.glass, r: 0.014 });
     box(parent, { x, y: 0.76, z: frontZ + 0.04, w: w * 0.52, h: 0.035, d: 0.012, mat: mats.metal, r: 0.004 });
   } else if (item.id === 'sink-800') {
     frontPanel(parent, mats, x, 0.43, frontZ, w - 0.02, 0.68, 2);
+    // sink basin
     box(parent, { x, y: h + 0.088, z: z + 0.02, w: w * 0.52, h: 0.028, d: d * 0.4, mat: mats.metal, r: 0.02 });
+    // faucet
     cyl(parent, { x: x + w * 0.18, y: h + 0.14, z: z + 0.02, radius: 0.012, length: 0.14, mat: mats.metal, axis: 'z' });
   } else {
     frontPanel(parent, mats, x, 0.43, frontZ, w - 0.02, 0.68, w > 0.65 ? 2 : 1);
@@ -169,9 +168,13 @@ function addTall(parent, item, mats, x) {
   const h = item.height / 1000;
   const frontZ = d / 2 + 0.03;
   box(parent, { x, y: h / 2, z: 0, w, h, d, mat: mats.body, r: 0.012 });
+  // upper door (refrigerator-style panel)
   box(parent, { x, y: 1.42, z: frontZ + 0.012, w: w - 0.065, h: 0.98, d: 0.042, mat: mats.metal, r: 0.012 });
+  // lower door
   box(parent, { x, y: 0.54, z: frontZ + 0.012, w: w - 0.065, h: 0.72, d: 0.042, mat: mats.metal, r: 0.012 });
+  // mid rail
   box(parent, { x, y: 1.02, z: frontZ + 0.045, w: w - 0.12, h: 0.018, d: 0.014, mat: mats.black, r: 0.002 });
+  // wood accent strips
   box(parent, { x: x - w * 0.32, y: 1.12, z: frontZ + 0.028, w: 0.03, h: 1.62, d: 0.02, mat: mats.wood, r: 0.004 });
   box(parent, { x: x + w * 0.32, y: 1.12, z: frontZ + 0.028, w: 0.03, h: 1.62, d: 0.02, mat: mats.wood, r: 0.004 });
 }
@@ -183,17 +186,19 @@ function addWall(parent, item, mats, x, z = -0.12) {
   const y = 1.56;
   const frontZ = z + d / 2 + 0.028;
   box(parent, { x, y, z, w, h, d, mat: mats.body, r: 0.01 });
+  // under-cabinet LED strip
   box(parent, { x, y: y - h / 2 - 0.034, z: frontZ, w: w * 0.92, h: 0.022, d: 0.02, mat: mats.light, r: 0.003, shadow: false });
 
   if (item.id.includes('glass')) {
     const shelfW = w - 0.08;
     const shelfH = h - 0.06;
     [-1, 1].forEach((sideX) => {
-      box(parent, { x: x + sideX * shelfW / 2, y, z: frontZ - 0.08, w: 0.024, h: shelfH, d: d - 0.04, mat: mats.black, r: 0.003 });
+      box(parent, { x: x + (sideX * shelfW) / 2, y, z: frontZ - 0.08, w: 0.024, h: shelfH, d: d - 0.04, mat: mats.black, r: 0.003 });
     });
     [-0.24, 0.02, 0.28].forEach((offset) => {
       box(parent, { x, y: y + offset, z: frontZ - 0.08, w: shelfW, h: 0.03, d: d - 0.04, mat: mats.wood, r: 0.004 });
     });
+    // decor items on shelves
     box(parent, { x: x - 0.16, y: y + 0.18, z: frontZ - 0.01, w: 0.15, h: 0.17, d: 0.05, mat: mats.wood, r: 0.004 });
     box(parent, { x: x + 0.12, y: y - 0.09, z: frontZ - 0.01, w: 0.18, h: 0.055, d: 0.12, mat: mats.metal, r: 0.006 });
   } else {
@@ -207,16 +212,40 @@ function addRoom(scene, mats) {
   floor.position.set(0, -0.006, 0.6);
   floor.receiveShadow = true;
   scene.add(floor);
+  // back wall
   box(scene, { x: 0, y: 1.16, z: -0.5, w: 7.8, h: 2.45, d: 0.08, mat: mats.wall, r: 0.002 });
+  // backsplash
   box(scene, { x: 0, y: 0.66, z: -0.438, w: 7.8, h: 0.68, d: 0.026, mat: mats.backsplash, r: 0.002 });
+  // backsplash top rail
   box(scene, { x: 0, y: 1.015, z: -0.412, w: 7.8, h: 0.024, d: 0.026, mat: mats.metal, r: 0.002 });
 }
 
-function addReferenceDetails(scene, kitchen, mats) {
+function addCornerWall(scene, mats, rightX, sideMeters) {
+  const wallX = rightX + 0.66;
+  const wallDepth = sideMeters + 0.8;
+  const wallZ = sideMeters / 2 - 0.3;
+  // right wall surface
+  box(scene, { x: wallX, y: 1.16, z: wallZ, w: 0.08, h: 2.45, d: wallDepth, mat: mats.wall, r: 0.002 });
+  // backsplash on right wall
+  box(scene, {
+    x: wallX - 0.04,
+    y: 0.66,
+    z: wallZ,
+    w: 0.026,
+    h: 0.68,
+    d: wallDepth - 0.1,
+    mat: mats.backsplash,
+    r: 0.002,
+  });
+}
+
+function addReferenceDetails(scene, mats) {
+  // knife rail
   cyl(scene, { x: -0.05, y: 1.02, z: -0.33, radius: 0.009, length: 1.0, mat: mats.black });
   [-0.34, -0.12, 0.1, 0.32].forEach((offset) => {
     cyl(scene, { x: -0.05 + offset, y: 0.94, z: -0.33, radius: 0.005, length: 0.12, mat: mats.black, axis: 'y' });
   });
+  // rug
   box(scene, { x: 0.18, y: 0.012, z: 1.25, w: 1.14, h: 0.018, d: 0.58, mat: mats.rug, r: 0.014, shadow: false });
 }
 
@@ -233,7 +262,6 @@ export default function KitchenPreview({ layout, material, wallLength, sideLengt
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 0.98;
-    renderer.physicallyCorrectLights = true;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
@@ -282,30 +310,61 @@ export default function KitchenPreview({ layout, material, wallLength, sideLengt
 
     const baseModules = modules.filter((item) => item.type === 'base' || item.type === 'tall');
     const wallModules = modules.filter((item) => item.type === 'wall');
-    let cursor = -Math.min(wallLength / 1000, 4.7) / 2;
+
+    const startX = -Math.min(wallLength / 1000, 4.7) / 2;
+    let cursor = startX;
+    // wallCursor skips over tall modules (no upper cabinets above a full-height pantry)
+    let wallCursor = startX;
 
     baseModules.forEach((item) => {
       const w = item.width / 1000;
       const centerX = cursor + w / 2;
-      if (item.type === 'tall') addTall(kitchen, item, mats, centerX);
-      else addBase(kitchen, item, mats, centerX);
+      if (item.type === 'tall') {
+        addTall(kitchen, item, mats, centerX);
+        wallCursor += w + 0.018;
+      } else {
+        addBase(kitchen, item, mats, centerX);
+      }
       cursor += w + 0.018;
     });
 
-    let wallCursor = -Math.min(wallLength / 1000, 3.25) / 2 + 0.62;
     wallModules.forEach((item) => {
       const w = item.width / 1000;
       addWall(kitchen, item, mats, wallCursor + w / 2);
       wallCursor += w + 0.018;
     });
 
+    // Corner side wall — perpendicular run built in a rotated group.
+    // rotation.y = -π/2 maps: local +X → world +Z, local +Z → world -X.
+    // So cabinet depth (local Z) points toward kitchen center (world -X) ✓
+    // and modules line up along local X = world Z (toward viewer) ✓.
     if (scheme === 'corner') {
-      const sideDepth = Math.min(sideLength / 1000, 3);
-      addBase(kitchen, { id: 'side-run', width: 540, height: 820, depth: sideDepth * 1000, type: 'base' }, mats, 1.82, sideDepth / 2 - 0.08);
-      addWall(kitchen, { id: 'side-wall', width: 540, height: 720, depth: 340, type: 'wall' }, mats, 1.82, 0.75);
+      const sideMeters = Math.min(sideLength / 1000, 2.8);
+      const sideCount = Math.max(1, Math.floor(sideMeters / 0.618));
+
+      const sideGroup = new THREE.Group();
+      sideGroup.rotation.y = -Math.PI / 2;
+      // x: front face of side cabinets aligns with right end of main wall (cursor)
+      // z: first module starts at corner junction (z≈0)
+      sideGroup.position.set(cursor + 0.312, 0, -0.3);
+      kitchen.add(sideGroup);
+
+      let sc = 0;
+      for (let i = 0; i < sideCount; i++) {
+        addBase(sideGroup, { id: 'base-600', width: 600, height: 820, depth: 560, type: 'base' }, mats, sc + 0.3);
+        sc += 0.618;
+      }
+
+      let swc = 0;
+      for (let i = 0; i < Math.min(sideCount, 3); i++) {
+        addWall(sideGroup, { id: 'wall-600', width: 600, height: 720, depth: 340, type: 'wall' }, mats, swc + 0.3);
+        swc += 0.618;
+      }
+
+      addCornerWall(scene, mats, cursor + 0.312, sideMeters);
     }
 
-    addReferenceDetails(scene, kitchen, mats);
+    addReferenceDetails(scene, mats);
 
     const resize = () => {
       const rect = canvas.parentElement.getBoundingClientRect();
@@ -335,12 +394,12 @@ export default function KitchenPreview({ layout, material, wallLength, sideLengt
       scene.environment?.dispose?.();
       scene.traverse((object) => {
         object.geometry?.dispose();
-        if (Array.isArray(object.material)) object.material.forEach((item) => item.dispose());
+        if (Array.isArray(object.material)) object.material.forEach((m) => m.dispose());
         else object.material?.dispose();
       });
-      Object.values(mats).forEach((item) => {
-        item.map?.dispose();
-        item.dispose();
+      Object.values(mats).forEach((m) => {
+        m.map?.dispose();
+        m.dispose();
       });
     };
   }, [modules, material, wallLength, sideLength, scheme]);
@@ -348,7 +407,7 @@ export default function KitchenPreview({ layout, material, wallLength, sideLengt
   return (
     <div className="preview-shell" aria-label="3D превью кухни">
       <canvas ref={canvasRef} />
-      <div className="preview-badge">Графит шагрень, дерево, свет, AR-сборка</div>
+      <div className="preview-badge">{material.name} · AR-сборка</div>
     </div>
   );
 }

@@ -26,7 +26,7 @@ const heroImage = 'https://kitchenrm.ru/wa-data/public/shop/products/03/19/1903/
 const modelUrl = '/models/kitchen-rm-demo.glb';
 
 const pilotKitchen = {
-  title: 'Кухня «Графит шагрень 2200x2400»',
+  title: 'Кухня «Графит шагрень 2200×2400»',
   price: 'от 160 000 ₽',
   source: 'https://kitchenrm.ru/grafit-shagren-2200kh2400/',
 };
@@ -37,6 +37,8 @@ const steps = [
   { title: 'Цвет', icon: Palette },
   { title: 'AR', icon: Smartphone },
 ];
+
+const MODULE_TYPE_LABEL = { base: 'низ', tall: 'пенал', wall: 'верх' };
 
 function moduleById(id) {
   return kitchenModules.find((item) => item.id === id);
@@ -54,7 +56,7 @@ function buildArLink({ sizePreset, material, scheme, layout }) {
   if (typeof window === 'undefined') return '#ar-view';
   const url = new URL(window.location.href);
   url.hash = 'ar-view';
-  url.searchParams.set('kitchen', 'grafit-turin');
+  url.searchParams.set('kitchen', 'grafit-shagren');
   url.searchParams.set('size', `${sizePreset.mainWall}x${sizePreset.sideWall}`);
   url.searchParams.set('scheme', scheme);
   url.searchParams.set('material', material.id);
@@ -69,6 +71,7 @@ export default function App() {
   const [materialId, setMaterialId] = useState('graphite-quartz');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [arReady, setArReady] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
 
   const material = materials.find((item) => item.id === materialId) ?? materials[0];
   const sizePreset =
@@ -83,14 +86,15 @@ export default function App() {
     [selectedModules],
   );
 
-  const selectedModule = selectedModules[selectedIndex] ?? selectedModules[0];
+  // Safe fallback: clamp selected index to valid range
+  const safeIndex = Math.min(selectedIndex, Math.max(0, selectedModules.length - 1));
+  const selectedModule = selectedModules[safeIndex];
+
   const arUrl = buildArLink({ sizePreset, material, scheme, layout });
   const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(arUrl)}&size=260&margin=1`;
   const fitStatus = baseWidth > sizePreset.mainWall ? 'warning' : 'ready';
 
-  const requestText = `${pilotKitchen.title}, ${scheme === 'straight' ? 'прямая' : 'угловая'} схема, размер ${sizePreset.mainWall}x${sizePreset.sideWall} мм, материал ${material.name}, модули: ${selectedModules
-    .map((item) => item.title)
-    .join(', ')}`;
+  const requestText = `${pilotKitchen.title}, ${scheme === 'straight' ? 'прямая' : 'угловая'} схема, ${sizePreset.mainWall}×${sizePreset.sideWall} мм, материал: ${material.name}, модули: ${selectedModules.map((item) => item.title).join(', ')}`;
 
   const applyPreset = (preset) => {
     setSizePresetId(preset.id);
@@ -106,8 +110,8 @@ export default function App() {
   };
 
   const removeModule = (index) => {
-    setLayout((items) => items.filter((_, itemIndex) => itemIndex !== index));
-    setSelectedIndex((current) => Math.max(0, Math.min(current, layout.length - 2)));
+    setLayout((items) => items.filter((_, i) => i !== index));
+    setSelectedIndex((cur) => Math.max(0, Math.min(cur, layout.length - 2)));
     setArReady(false);
   };
 
@@ -188,13 +192,18 @@ export default function App() {
             {selectedModules.map((item, index) => (
               <button
                 key={`${item.id}-${index}`}
-                className={selectedIndex === index ? 'module-tile active' : 'module-tile'}
+                className={safeIndex === index ? 'module-tile active' : 'module-tile'}
                 type="button"
                 onClick={() => setSelectedIndex(index)}
               >
                 <span>{index + 1}</span>
                 <strong>{item.title}</strong>
-                <small>{item.width} мм</small>
+                <small>
+                  {item.width} мм ·{' '}
+                  <span className={`type-badge type-${item.type}`}>
+                    {MODULE_TYPE_LABEL[item.type]}
+                  </span>
+                </small>
               </button>
             ))}
           </div>
@@ -216,7 +225,7 @@ export default function App() {
                 >
                   <strong>{preset.title}</strong>
                   <span>
-                    {preset.mainWall}x{preset.sideWall}
+                    {preset.mainWall}×{preset.sideWall}
                   </span>
                 </button>
               ))}
@@ -225,20 +234,14 @@ export default function App() {
               <button
                 className={scheme === 'straight' ? 'active' : ''}
                 type="button"
-                onClick={() => {
-                  setScheme('straight');
-                  setArReady(false);
-                }}
+                onClick={() => { setScheme('straight'); setArReady(false); }}
               >
                 Прямая
               </button>
               <button
                 className={scheme === 'corner' ? 'active' : ''}
                 type="button"
-                onClick={() => {
-                  setScheme('corner');
-                  setArReady(false);
-                }}
+                onClick={() => { setScheme('corner'); setArReady(false); }}
               >
                 Угловая
               </button>
@@ -250,26 +253,30 @@ export default function App() {
               <Grid3X3 size={18} />
               <strong>Модули</strong>
             </div>
-            <div className="selected-module">
-              <div>
-                <span>Выбран</span>
-                <strong>{selectedModule?.title}</strong>
-                <small>
-                  {selectedModule?.width}x{selectedModule?.height}x{selectedModule?.depth} мм
-                </small>
+            {selectedModule ? (
+              <div className="selected-module">
+                <div>
+                  <span>Выбран</span>
+                  <strong>{selectedModule.title}</strong>
+                  <small>
+                    {selectedModule.width}×{selectedModule.height}×{selectedModule.depth} мм
+                  </small>
+                </div>
+                <div className="icon-actions">
+                  <button type="button" aria-label="Влево" onClick={() => shiftModule(safeIndex, -1)}>
+                    <MoveLeft size={16} />
+                  </button>
+                  <button type="button" aria-label="Вправо" onClick={() => shiftModule(safeIndex, 1)}>
+                    <MoveRight size={16} />
+                  </button>
+                  <button type="button" aria-label="Удалить" onClick={() => removeModule(safeIndex)}>
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
-              <div className="icon-actions">
-                <button type="button" aria-label="Влево" onClick={() => shiftModule(selectedIndex, -1)}>
-                  <MoveLeft size={16} />
-                </button>
-                <button type="button" aria-label="Вправо" onClick={() => shiftModule(selectedIndex, 1)}>
-                  <MoveRight size={16} />
-                </button>
-                <button type="button" aria-label="Удалить" onClick={() => removeModule(selectedIndex)}>
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </div>
+            ) : (
+              <p className="empty-hint">Добавьте модуль из списка ниже</p>
+            )}
             <div className="module-picker">
               {kitchenModules.map((item) => (
                 <button key={item.id} type="button" onClick={() => addModule(item.id)}>
@@ -291,10 +298,7 @@ export default function App() {
                   key={item.id}
                   className={item.id === materialId ? 'swatch active' : 'swatch'}
                   type="button"
-                  onClick={() => {
-                    setMaterialId(item.id);
-                    setArReady(false);
-                  }}
+                  onClick={() => { setMaterialId(item.id); setArReady(false); }}
                 >
                   <span style={{ background: item.face }} />
                   {item.name}
@@ -325,7 +329,7 @@ export default function App() {
           <h2>QR открывает модель кухни на телефоне</h2>
           <p>
             На компьютере клиент видит QR. На телефоне открывается эта же сборка и кнопка запуска
-            AR, чтобы поставить кухню в помещении.
+            AR — можно поставить кухню прямо в свою комнату.
           </p>
           <div className="ar-actions">
             <a className="button ghost-dark" href={arUrl}>
@@ -365,19 +369,26 @@ export default function App() {
       </section>
 
       <section id="request" className="request-section">
-        <button className="collapse-button" type="button">
-          <ChevronUp size={16} />
+        <button
+          className="collapse-button"
+          type="button"
+          onClick={() => setFormOpen((open) => !open)}
+          aria-expanded={formOpen}
+        >
+          {formOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           Заявка менеджеру
-          <ChevronDown size={16} />
+          {formOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
-        <form className="request-form">
-          <input placeholder="Имя" />
-          <input placeholder="+7 ..." />
-          <textarea value={requestText} readOnly rows="3" />
-          <button className="button primary" type="button">
-            <Mail size={18} /> Отправить заявку
-          </button>
-        </form>
+        {formOpen && (
+          <form className="request-form">
+            <input placeholder="Имя" />
+            <input placeholder="+7 ..." />
+            <textarea value={requestText} readOnly rows="3" />
+            <button className="button primary" type="button">
+              <Mail size={18} /> Отправить заявку
+            </button>
+          </form>
+        )}
       </section>
     </main>
   );
