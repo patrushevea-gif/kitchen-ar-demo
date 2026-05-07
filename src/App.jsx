@@ -25,7 +25,9 @@ import KitchenPreview from './components/KitchenPreview.jsx';
 import { defaultLayout, kitchenModules, kitchenSizePresets, materials } from './data/kitchen.js';
 
 const heroImage = 'https://kitchenrm.ru/wa-data/public/shop/products/03/19/1903/images/18695/18695.970.jpg';
-const modelUrl = '/models/kitchen-rm-ar.glb';
+const appBase = import.meta.env.BASE_URL || '/';
+const normalizedAppBase = appBase.endsWith('/') ? appBase : `${appBase}/`;
+const modelUrl = `${normalizedAppBase}models/kitchen-rm-ar.glb`;
 
 const pilotKitchen = {
   title: 'Кухня «Графит шагрень 2200×2400»',
@@ -41,8 +43,9 @@ function getModuleById(id) {
 }
 
 function buildArLink({ sizePreset, material, scheme, cornerSide, layout }) {
-  if (typeof window === 'undefined') return '/ar';
-  const url = new URL('/ar', window.location.origin);
+  const arPath = `${normalizedAppBase}ar`.replace(/\/{2,}/g, '/');
+  if (typeof window === 'undefined') return arPath;
+  const url = new URL(arPath, window.location.origin);
   url.searchParams.set('open', '1');
   url.searchParams.set('size', `${sizePreset.mainWall}x${sizePreset.sideWall}`);
   url.searchParams.set('scheme', scheme);
@@ -54,7 +57,7 @@ function buildArLink({ sizePreset, material, scheme, cornerSide, layout }) {
 
 export default function App() {
   const pathname = typeof window === 'undefined' ? '/' : window.location.pathname.replace(/\/$/, '');
-  if (pathname === '/ar') return <ArExperience />;
+  if (pathname === '/ar' || pathname.endsWith('/ar')) return <ArExperience />;
 
   return <ConstructorExperience />;
 }
