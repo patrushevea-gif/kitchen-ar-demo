@@ -43,9 +43,10 @@ function getModuleById(id) {
 }
 
 function buildArLink({ sizePreset, material, scheme, cornerSide, layout }) {
-  const arPath = `${normalizedAppBase}ar`.replace(/\/{2,}/g, '/');
-  if (typeof window === 'undefined') return arPath;
+  const arPath = normalizedAppBase.replace(/\/{2,}/g, '/');
+  if (typeof window === 'undefined') return `${arPath}?ar=1`;
   const url = new URL(arPath, window.location.origin);
+  url.searchParams.set('ar', '1');
   url.searchParams.set('open', '1');
   url.searchParams.set('size', `${sizePreset.mainWall}x${sizePreset.sideWall}`);
   url.searchParams.set('scheme', scheme);
@@ -57,7 +58,8 @@ function buildArLink({ sizePreset, material, scheme, cornerSide, layout }) {
 
 export default function App() {
   const pathname = typeof window === 'undefined' ? '/' : window.location.pathname.replace(/\/$/, '');
-  if (pathname === '/ar' || pathname.endsWith('/ar')) return <ArExperience />;
+  const searchParams = typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search);
+  if (searchParams.get('ar') === '1' || pathname === '/ar' || pathname.endsWith('/ar')) return <ArExperience />;
 
   return <ConstructorExperience />;
 }
