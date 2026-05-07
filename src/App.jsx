@@ -1,10 +1,12 @@
 import '@google/model-viewer';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   Camera,
   Check,
   ChevronDown,
+  ChevronRight,
   ChevronUp,
+  GripVertical,
   Grid3X3,
   Mail,
   MapPin,
@@ -31,34 +33,20 @@ const pilotKitchen = {
   source: 'https://kitchenrm.ru/grafit-shagren-2200kh2400/',
 };
 
-const steps = [
-  { title: 'Размер', icon: Ruler },
-  { title: 'Модули', icon: Grid3X3 },
-  { title: 'Цвет', icon: Palette },
-  { title: 'AR', icon: Smartphone },
-];
+const MODULE_TYPE_LABEL = { base: 'Нижний', tall: 'Колонна', wall: 'Верхний' };
+const MODULE_TYPE_SHORT = { base: 'Н', tall: 'К', wall: 'В' };
 
-const MODULE_TYPE_LABEL = { base: 'низ', tall: 'пенал', wall: 'верх' };
-
-function moduleById(id) {
-  return kitchenModules.find((item) => item.id === id);
+function getModuleById(id) {
+  return kitchenModules.find((m) => m.id === id);
 }
 
-function moveItem(items, index, direction) {
-  const nextIndex = index + direction;
-  if (nextIndex < 0 || nextIndex >= items.length) return items;
-  const next = [...items];
-  [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
-  return next;
-}
-
-function buildArLink({ sizePreset, material, scheme, layout }) {
+function buildArLink({ sizePreset, material, scheme, cornerSide, layout }) {
   if (typeof window === 'undefined') return '#ar-view';
   const url = new URL(window.location.href);
   url.hash = 'ar-view';
-  url.searchParams.set('kitchen', 'grafit-shagren');
   url.searchParams.set('size', `${sizePreset.mainWall}x${sizePreset.sideWall}`);
   url.searchParams.set('scheme', scheme);
+  url.searchParams.set('corner', cornerSide);
   url.searchParams.set('material', material.id);
   url.searchParams.set('modules', layout.join(','));
   return url.toString();
@@ -67,35 +55,36 @@ function buildArLink({ sizePreset, material, scheme, layout }) {
 export default function App() {
   const [sizePresetId, setSizePresetId] = useState('original');
   const [scheme, setScheme] = useState('corner');
+  const [cornerSide, setCornerSide] = useState('right');
   const [layout, setLayout] = useState(defaultLayout);
   const [materialId, setMaterialId] = useState('graphite-quartz');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [arReady, setArReady] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
+  const [dragIndex, setDragIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
 
-  const material = materials.find((item) => item.id === materialId) ?? materials[0];
-  const sizePreset =
-    kitchenSizePresets.find((item) => item.id === sizePresetId) ?? kitchenSizePresets[1];
-  const selectedModules = layout.map(moduleById).filter(Boolean);
+  const dragCounter = useRef(0);
+
+  const material = materials.find((m) => m.id === materialId) ?? materials[0];
+  const sizePreset = kitchenSizePresets.find((p) => p.id === sizePresetId) ?? kitchenSizePresets[1];
+  const selectedModules = layout.map(getModuleById).filter(Boolean);
 
   const baseWidth = useMemo(
-    () =>
-      selectedModules
-        .filter((item) => item.type === 'base' || item.type === 'tall')
-        .reduce((sum, item) => sum + item.width, 0),
+    () => selectedModules.filter((m) => m.type === 'base' || m.type === 'tall').reduce((s, m) => s + m.width, 0),
     [selectedModules],
   );
 
-  // Safe fallback: clamp selected index to valid range
   const safeIndex = Math.min(selectedIndex, Math.max(0, selectedModules.length - 1));
   const selectedModule = selectedModules[safeIndex];
-
-  const arUrl = buildArLink({ sizePreset, material, scheme, layout });
-  const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(arUrl)}&size=260&margin=1`;
   const fitStatus = baseWidth > sizePreset.mainWall ? 'warning' : 'ready';
 
-  const requestText = `${pilotKitchen.title}, ${scheme === 'straight' ? 'прямая' : 'угловая'} схема, ${sizePreset.mainWall}×${sizePreset.sideWall} мм, материал: ${material.name}, модули: ${selectedModules.map((item) => item.title).join(', ')}`;
+  const arUrl = buildArLink({ sizePreset, material, scheme, cornerSide, layout });
+  const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(arUrl)}&size=260&margin=1`;
 
+  const requestText = `${pilotKitchen.title}\nСхема: ${scheme === 'straight' ? 'прямая' : `угловая, угол ${cornerSide === 'right' ? 'вправо' : 'влево'}`}\nРазмер: ${sizePreset.mainWall}×${sizePreset.sideWall} мм\nМатериал: ${material.name}\nМодули: ${selectedModules.map((m) => m.title).join(', ')}`;
+
+  // ── Preset ──────────────────────────────────────────────────────────────────
   const applyPreset = (preset) => {
     setSizePresetId(preset.id);
     setLayout(preset.layout);
@@ -103,37 +92,92 @@ export default function App() {
     setArReady(false);
   };
 
+  // ── Module operations ───────────────────────────────────────────────────────
   const addModule = (id) => {
-    setLayout((items) => [...items, id]);
+    setLayout((prev) => [...prev, id]);
     setSelectedIndex(layout.length);
     setArReady(false);
   };
 
   const removeModule = (index) => {
-    setLayout((items) => items.filter((_, i) => i !== index));
+    setLayout((prev) => prev.filter((_, i) => i !== index));
     setSelectedIndex((cur) => Math.max(0, Math.min(cur, layout.length - 2)));
     setArReady(false);
   };
 
-  const shiftModule = (index, direction) => {
-    setLayout((items) => moveItem(items, index, direction));
-    setSelectedIndex(Math.max(0, Math.min(index + direction, layout.length - 1)));
+  const shiftModule = (index, dir) => {
+    const next = index + dir;
+    if (next < 0 || next >= layout.length) return;
+    setLayout((prev) => {
+      const arr = [...prev];
+      [arr[index], arr[next]] = [arr[next], arr[index]];
+      return arr;
+    });
+    setSelectedIndex(next);
     setArReady(false);
+  };
+
+  // ── Drag-and-drop reorder ───────────────────────────────────────────────────
+  const onDragStart = (e, index) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+    setDragIndex(index);
+    dragCounter.current = 0;
+  };
+
+  const onDragEnter = (e, index) => {
+    e.preventDefault();
+    dragCounter.current++;
+    setDragOverIndex(index);
+  };
+
+  const onDragLeave = () => {
+    dragCounter.current--;
+    if (dragCounter.current === 0) setDragOverIndex(null);
+  };
+
+  const onDrop = (e, toIndex) => {
+    e.preventDefault();
+    const fromIndex = Number(e.dataTransfer.getData('text/plain'));
+    if (fromIndex !== toIndex) {
+      setLayout((prev) => {
+        const arr = [...prev];
+        const [item] = arr.splice(fromIndex, 1);
+        arr.splice(toIndex, 0, item);
+        return arr;
+      });
+      setSelectedIndex(toIndex);
+      setArReady(false);
+    }
+    setDragIndex(null);
+    setDragOverIndex(null);
+    dragCounter.current = 0;
+  };
+
+  const onDragEnd = () => {
+    setDragIndex(null);
+    setDragOverIndex(null);
+    dragCounter.current = 0;
+  };
+
+  const tileClass = (index) => {
+    let c = 'module-tile';
+    if (safeIndex === index) c += ' active';
+    if (dragIndex === index) c += ' dragging';
+    if (dragOverIndex === index && dragIndex !== index) c += ' drag-over';
+    return c;
   };
 
   return (
     <main>
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="site-header">
         <div className="topbar">
-          <span>
-            <MapPin size={14} /> Екатеринбург, ул. Холмистая 17В
-          </span>
-          <span>
-            <Phone size={14} /> +7 (343) 385-70-43
-          </span>
+          <span><MapPin size={13} /> Екатеринбург, ул. Холмистая 17В</span>
+          <span><Phone size={13} /> +7 (343) 385-70-43</span>
         </div>
         <nav className="nav">
-          <a className="brand" href="#constructor" aria-label="Кухни РМ">
+          <a className="brand" href="#constructor">
             <span className="brand-mark">РМ</span>
             <span>
               <strong>Кухни РМ</strong>
@@ -148,7 +192,10 @@ export default function App() {
         </nav>
       </header>
 
+      {/* ── Workspace ──────────────────────────────────────────────────────── */}
       <section id="constructor" className="workspace">
+
+        {/* Left: product card */}
         <aside className="product-rail">
           <img src={heroImage} alt={pilotKitchen.title} />
           <div>
@@ -156,28 +203,23 @@ export default function App() {
             <h1>{pilotKitchen.title}</h1>
             <strong>{pilotKitchen.price}</strong>
             <a href={pilotKitchen.source} target="_blank" rel="noreferrer">
-              Оригинал на сайте
+              Оригинал на сайте <ChevronRight size={13} />
             </a>
           </div>
         </aside>
 
+        {/* Center: 3D builder */}
         <section className="builder-surface">
           <div className="builder-header">
             <div>
               <p className="eyebrow">Живой конструктор</p>
-              <h2>Соберите кухню и сразу откройте ее в AR</h2>
+              <h2>Соберите кухню — смотрите в AR</h2>
             </div>
-            <div className="stepper" aria-label="Сценарий сборки">
-              {steps.map((step, index) => {
-                const Icon = step.icon;
-                return (
-                  <span key={step.title}>
-                    <Icon size={15} />
-                    {index + 1}. {step.title}
-                  </span>
-                );
-              })}
-            </div>
+            <ol className="stepper">
+              {[['Размер', <Ruler size={14} />], ['Модули', <Grid3X3 size={14} />], ['Цвет', <Palette size={14} />], ['AR', <Smartphone size={14} />]].map(([label, icon], i) => (
+                <li key={label}>{icon}{i + 1}. {label}</li>
+              ))}
+            </ol>
           </div>
 
           <KitchenPreview
@@ -186,35 +228,46 @@ export default function App() {
             wallLength={sizePreset.mainWall}
             sideLength={sizePreset.sideWall}
             scheme={scheme}
+            cornerSide={cornerSide}
           />
 
-          <div className="module-strip" aria-label="Текущая сборка">
+          {/* Module strip */}
+          <p className="strip-hint">
+            <GripVertical size={13} /> Перетащите для перестановки · Нажмите для выбора · В панели справа — удалить или сдвинуть
+          </p>
+          <div className="module-strip" role="list">
             {selectedModules.map((item, index) => (
               <button
                 key={`${item.id}-${index}`}
-                className={safeIndex === index ? 'module-tile active' : 'module-tile'}
+                role="listitem"
+                className={tileClass(index)}
                 type="button"
+                draggable
                 onClick={() => setSelectedIndex(index)}
+                onDragStart={(e) => onDragStart(e, index)}
+                onDragEnter={(e) => onDragEnter(e, index)}
+                onDragLeave={onDragLeave}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => onDrop(e, index)}
+                onDragEnd={onDragEnd}
               >
-                <span>{index + 1}</span>
+                <span className={`tile-num type-${item.type}`}>{index + 1}</span>
                 <strong>{item.title}</strong>
-                <small>
-                  {item.width} мм ·{' '}
-                  <span className={`type-badge type-${item.type}`}>
-                    {MODULE_TYPE_LABEL[item.type]}
-                  </span>
-                </small>
+                <small>{MODULE_TYPE_LABEL[item.type]} · {item.width} мм</small>
               </button>
             ))}
+            {selectedModules.length === 0 && (
+              <p className="strip-empty">Нет модулей — добавьте из панели справа</p>
+            )}
           </div>
         </section>
 
+        {/* Right: controls */}
         <aside className="control-dock">
+
+          {/* Size & scheme */}
           <section>
-            <div className="dock-title">
-              <Ruler size={18} />
-              <strong>Размер и схема</strong>
-            </div>
+            <div className="dock-title"><Ruler size={17} /><strong>Размер кухни</strong></div>
             <div className="preset-grid">
               {kitchenSizePresets.map((preset) => (
                 <button
@@ -224,74 +277,83 @@ export default function App() {
                   onClick={() => applyPreset(preset)}
                 >
                   <strong>{preset.title}</strong>
-                  <span>
-                    {preset.mainWall}×{preset.sideWall}
-                  </span>
+                  <span>{preset.mainWall}×{preset.sideWall}</span>
+                  <small>{preset.description}</small>
                 </button>
               ))}
             </div>
+
+            <p className="dock-label">Планировка</p>
             <div className="segmented">
-              <button
-                className={scheme === 'straight' ? 'active' : ''}
-                type="button"
-                onClick={() => { setScheme('straight'); setArReady(false); }}
-              >
+              <button className={scheme === 'straight' ? 'active' : ''} type="button"
+                onClick={() => { setScheme('straight'); setArReady(false); }}>
                 Прямая
               </button>
-              <button
-                className={scheme === 'corner' ? 'active' : ''}
-                type="button"
-                onClick={() => { setScheme('corner'); setArReady(false); }}
-              >
+              <button className={scheme === 'corner' ? 'active' : ''} type="button"
+                onClick={() => { setScheme('corner'); setArReady(false); }}>
                 Угловая
               </button>
             </div>
+
+            {scheme === 'corner' && (
+              <>
+                <p className="dock-label">Сторона угла</p>
+                <div className="segmented">
+                  <button className={cornerSide === 'left' ? 'active' : ''} type="button"
+                    onClick={() => { setCornerSide('left'); setArReady(false); }}>
+                    ← Влево
+                  </button>
+                  <button className={cornerSide === 'right' ? 'active' : ''} type="button"
+                    onClick={() => { setCornerSide('right'); setArReady(false); }}>
+                    Вправо →
+                  </button>
+                </div>
+              </>
+            )}
           </section>
 
+          {/* Modules */}
           <section>
-            <div className="dock-title">
-              <Grid3X3 size={18} />
-              <strong>Модули</strong>
-            </div>
+            <div className="dock-title"><Grid3X3 size={17} /><strong>Модули</strong></div>
+
             {selectedModule ? (
               <div className="selected-module">
                 <div>
                   <span>Выбран</span>
                   <strong>{selectedModule.title}</strong>
-                  <small>
-                    {selectedModule.width}×{selectedModule.height}×{selectedModule.depth} мм
-                  </small>
+                  <small>{selectedModule.width}×{selectedModule.height}×{selectedModule.depth} мм · {MODULE_TYPE_LABEL[selectedModule.type]}</small>
                 </div>
                 <div className="icon-actions">
-                  <button type="button" aria-label="Влево" onClick={() => shiftModule(safeIndex, -1)}>
-                    <MoveLeft size={16} />
+                  <button type="button" aria-label="Влево" title="Сдвинуть влево" onClick={() => shiftModule(safeIndex, -1)}>
+                    <MoveLeft size={15} />
                   </button>
-                  <button type="button" aria-label="Вправо" onClick={() => shiftModule(safeIndex, 1)}>
-                    <MoveRight size={16} />
+                  <button type="button" aria-label="Вправо" title="Сдвинуть вправо" onClick={() => shiftModule(safeIndex, 1)}>
+                    <MoveRight size={15} />
                   </button>
-                  <button type="button" aria-label="Удалить" onClick={() => removeModule(safeIndex)}>
-                    <Trash2 size={16} />
+                  <button type="button" aria-label="Удалить" title="Удалить модуль" className="icon-delete" onClick={() => removeModule(safeIndex)}>
+                    <Trash2 size={15} />
                   </button>
                 </div>
               </div>
             ) : (
               <p className="empty-hint">Добавьте модуль из списка ниже</p>
             )}
+
+            <p className="dock-label">Добавить</p>
             <div className="module-picker">
               {kitchenModules.map((item) => (
                 <button key={item.id} type="button" onClick={() => addModule(item.id)}>
-                  <Plus size={15} />
+                  <span className={`picker-dot type-${item.type}`}>{MODULE_TYPE_SHORT[item.type]}</span>
+                  <Plus size={12} />
                   {item.title}
                 </button>
               ))}
             </div>
           </section>
 
+          {/* Color */}
           <section>
-            <div className="dock-title">
-              <Palette size={18} />
-              <strong>Цвет</strong>
-            </div>
+            <div className="dock-title"><Palette size={17} /><strong>Цвет фасадов</strong></div>
             <div className="swatches">
               {materials.map((item) => (
                 <button
@@ -307,36 +369,36 @@ export default function App() {
             </div>
           </section>
 
-          <section className="ar-dock">
-            <div className="dock-title">
-              <QrCode size={18} />
-              <strong>AR-примерка</strong>
-            </div>
+          {/* AR */}
+          <section>
+            <div className="dock-title"><QrCode size={17} /><strong>AR-примерка</strong></div>
             <div className={`fit ${fitStatus}`}>
-              {fitStatus === 'ready' ? <Check size={16} /> : <Maximize2 size={16} />}
-              {baseWidth} / {sizePreset.mainWall} мм
+              {fitStatus === 'ready' ? <Check size={15} /> : <Maximize2 size={15} />}
+              {fitStatus === 'ready' ? `Влезает: ${baseWidth} / ${sizePreset.mainWall} мм` : `Не влезает: ${baseWidth} / ${sizePreset.mainWall} мм`}
             </div>
             <button className="button primary" type="button" onClick={() => setArReady(true)}>
-              <Camera size={18} /> Сформировать QR для AR
+              <Camera size={17} /> Сформировать QR для AR
             </button>
           </section>
+
         </aside>
       </section>
 
+      {/* ── AR section ─────────────────────────────────────────────────────── */}
       <section id="ar-view" className={arReady ? 'ar-section visible' : 'ar-section'}>
         <div className="ar-copy">
           <p className="eyebrow">AR-сцена текущей сборки</p>
           <h2>QR открывает модель кухни на телефоне</h2>
           <p>
-            На компьютере клиент видит QR. На телефоне открывается эта же сборка и кнопка запуска
-            AR — можно поставить кухню прямо в свою комнату.
+            На компьютере клиент видит QR. На телефоне открывается эта же сборка с кнопкой
+            AR — можно поставить кухню в свою комнату.
           </p>
           <div className="ar-actions">
             <a className="button ghost-dark" href={arUrl}>
-              <Smartphone size={18} /> Открыть AR-ссылку
+              <Smartphone size={17} /> Открыть AR-ссылку
             </a>
             <a className="button ghost-dark" href="#request">
-              <Mail size={18} /> Отправить расчет
+              <Mail size={17} /> Отправить расчёт
             </a>
           </div>
         </div>
@@ -345,11 +407,11 @@ export default function App() {
             <img src={qrUrl} alt="QR для открытия AR-модели кухни" />
           ) : (
             <button type="button" onClick={() => setArReady(true)}>
-              <QrCode size={42} />
+              <QrCode size={40} />
               Сформировать QR
             </button>
           )}
-          <small>Наведите камеру телефона на QR-код</small>
+          <small>Наведите камеру телефона</small>
         </div>
         <model-viewer
           className="model-viewer"
@@ -363,29 +425,30 @@ export default function App() {
           interaction-prompt="none"
         >
           <button className="button primary ar-launch" slot="ar-button">
-            <Camera size={18} /> Смотреть в AR
+            <Camera size={17} /> Смотреть в AR
           </button>
         </model-viewer>
       </section>
 
+      {/* ── Request form ───────────────────────────────────────────────────── */}
       <section id="request" className="request-section">
         <button
           className="collapse-button"
           type="button"
-          onClick={() => setFormOpen((open) => !open)}
+          onClick={() => setFormOpen((o) => !o)}
           aria-expanded={formOpen}
         >
           {formOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          Заявка менеджеру
+          Отправить заявку менеджеру
           {formOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
         {formOpen && (
-          <form className="request-form">
-            <input placeholder="Имя" />
-            <input placeholder="+7 ..." />
-            <textarea value={requestText} readOnly rows="3" />
-            <button className="button primary" type="button">
-              <Mail size={18} /> Отправить заявку
+          <form className="request-form" onSubmit={(e) => e.preventDefault()}>
+            <input placeholder="Ваше имя" />
+            <input placeholder="+7 (___) ___-__-__" type="tel" />
+            <textarea value={requestText} readOnly rows={4} />
+            <button className="button primary" type="submit">
+              <Mail size={17} /> Отправить заявку
             </button>
           </form>
         )}
