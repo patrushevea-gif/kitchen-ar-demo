@@ -10,32 +10,26 @@
   --dark:        #38312b;
   --shadow-sm:   0 2px 8px rgba(60, 45, 30, 0.07);
   --shadow:      0 6px 24px rgba(60, 45, 30, 0.10);
-  --shadow-lg:   0 12px 40px rgba(60, 45, 30, 0.13);
   --radius-sm:   6px;
   --radius:      10px;
-  --radius-lg:   14px;
 
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-size: 15px;
   line-height: 1.5;
   color: var(--ink);
-  background: #f7f2eb;
+  background: #f4ede3;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ─── Сброс ───────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
-
 html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
   min-width: 320px;
-  background:
-    linear-gradient(180deg, #fffaf3 0, #f4ede3 360px),
-    #f4ede3;
+  background: linear-gradient(180deg, #fffaf3 0, #f4ede3 360px) #f4ede3;
 }
 
 button, input, textarea { font: inherit; }
@@ -43,23 +37,22 @@ button, a { -webkit-tap-highlight-color: transparent; }
 button { color: inherit; }
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
-
 h1, h2, h3, p { margin-top: 0; }
 
 h1 {
-  margin-bottom: 0.5rem;
-  font-size: 1.5rem;
+  margin-bottom: 0.45rem;
+  font-size: 1.45rem;
   font-weight: 800;
   line-height: 1.15;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 h2 {
   margin-bottom: 0;
-  font-size: clamp(1.25rem, 1.8vw, 1.8rem);
+  font-size: clamp(1.2rem, 1.7vw, 1.72rem);
   font-weight: 800;
   line-height: 1.2;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.012em;
 }
 
 p {
@@ -82,7 +75,7 @@ p {
   display: flex;
   justify-content: center;
   gap: 1.5rem;
-  padding: 0.4rem 1rem;
+  padding: 0.38rem 1rem;
   color: #f0e4d6;
   background: var(--dark);
   font-size: 0.8125rem;
@@ -93,16 +86,16 @@ p {
 .topbar span {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1440px;
+  max-width: 1540px;
   margin: 0 auto;
-  padding: 0.75rem 1.25rem;
+  padding: 0.7rem 1.25rem;
 }
 
 .brand {
@@ -153,11 +146,11 @@ p {
 /* ─── Рабочая зона ───────────────────────────────────────── */
 .workspace {
   display: grid;
-  grid-template-columns: 252px minmax(0, 1fr) 364px;
-  gap: 1rem;
-  max-width: 1440px;
+  grid-template-columns: 240px minmax(0, 1fr) 340px;
+  gap: 0.875rem;
+  max-width: 1540px;
   margin: 0 auto;
-  padding: 1.25rem;
+  padding: 1rem 1.25rem;
 }
 
 .product-rail,
@@ -171,7 +164,7 @@ p {
   box-shadow: var(--shadow);
 }
 
-/* ─── Левая колонка — фото товара ───────────────────────── */
+/* ─── Левая колонка ──────────────────────────────────────── */
 .product-rail {
   align-self: start;
   overflow: hidden;
@@ -184,7 +177,7 @@ p {
 }
 
 .product-rail div {
-  padding: 1.1rem;
+  padding: 1rem 1.1rem;
 }
 
 .eyebrow {
@@ -192,13 +185,13 @@ p {
   color: var(--accent);
   font-size: 0.6875rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
 }
 
 .product-rail strong {
   display: block;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.6rem;
   color: var(--accent);
   font-size: 1.0625rem;
   font-weight: 800;
@@ -207,7 +200,7 @@ p {
 .product-rail a {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.2rem;
   color: var(--accent);
   font-size: 0.8125rem;
   font-weight: 700;
@@ -215,7 +208,7 @@ p {
 
 .product-rail a:hover { text-decoration: underline; }
 
-/* ─── Конструктор — центральная колонка ─────────────────── */
+/* ─── Конструктор ────────────────────────────────────────── */
 .builder-surface {
   min-width: 0;
   padding: 1.1rem;
@@ -226,22 +219,25 @@ p {
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.85rem;
 }
 
 .stepper {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.35rem;
   flex-shrink: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
-.stepper span {
+.stepper li {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  min-height: 32px;
-  padding: 0 0.65rem;
+  gap: 0.32rem;
+  min-height: 30px;
+  padding: 0 0.6rem;
   color: var(--muted);
   background: var(--soft);
   border: 1px solid var(--line);
@@ -252,14 +248,14 @@ p {
   white-space: nowrap;
 }
 
-/* ─── 3D-превью ──────────────────────────────────────────── */
+/* ─── 3D превью ──────────────────────────────────────────── */
 .preview-shell {
   position: relative;
-  height: min(64vh, 620px);
-  min-height: 460px;
+  height: min(68vh, 680px);
+  min-height: 520px;
   overflow: hidden;
   background:
-    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.95), rgba(244,235,224,0.42) 34%, transparent 58%),
+    radial-gradient(circle at 50% 16%, rgba(255,255,255,0.96), rgba(244,235,224,0.4) 32%, transparent 55%),
     linear-gradient(180deg, #f6efe6 0%, #dfd4c6 100%);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
@@ -277,8 +273,8 @@ p {
 .preview-badge {
   position: absolute;
   left: 0.875rem;
-  bottom: 0.875rem;
-  padding: 0.35rem 0.65rem;
+  top: 0.875rem;
+  padding: 0.32rem 0.65rem;
   color: var(--dark);
   background: rgba(255, 250, 243, 0.92);
   border: 1px solid rgba(226, 214, 200, 0.9);
@@ -289,61 +285,105 @@ p {
   backdrop-filter: blur(12px);
 }
 
+.preview-hint {
+  position: absolute;
+  right: 0.875rem;
+  bottom: 0.875rem;
+  padding: 0.28rem 0.6rem;
+  color: var(--muted);
+  background: rgba(255, 250, 243, 0.88);
+  border: 1px solid rgba(226, 214, 200, 0.85);
+  border-radius: var(--radius-sm);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+/* ─── Подсказка полосы ───────────────────────────────────── */
+.strip-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0.65rem 0 0.45rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.strip-empty {
+  margin: 0;
+  padding: 0.6rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
 /* ─── Полоса модулей ─────────────────────────────────────── */
 .module-strip {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(110px, 1fr);
-  gap: 0.5rem;
-  margin-top: 0.75rem;
+  grid-auto-columns: minmax(118px, 1fr);
+  gap: 0.45rem;
   overflow-x: auto;
   padding-bottom: 0.25rem;
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
 }
 
-.module-tile,
-.preset-card,
-.swatch,
-.module-picker button,
-.icon-actions button,
-.qr-card button {
-  border: 1px solid var(--line);
+.module-tile {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 0.22rem 0.5rem;
+  min-height: 70px;
+  padding: 0.55rem 0.6rem;
+  text-align: left;
+  border: 1.5px solid var(--line);
   border-radius: var(--radius-sm);
   background: white;
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, opacity 0.15s;
+  user-select: none;
 }
 
-.module-tile {
-  display: grid;
-  grid-template-columns: 26px 1fr;
-  gap: 0.25rem 0.5rem;
-  min-height: 66px;
-  padding: 0.55rem;
-  text-align: left;
-}
-
-.module-tile:hover,
-.preset-card:hover,
-.swatch:hover,
-.module-picker button:hover {
+.module-tile:hover {
   border-color: var(--accent);
   box-shadow: var(--shadow-sm);
 }
 
-.module-tile span {
-  display: grid;
+.module-tile.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(200, 32, 50, 0.18);
+}
+
+/* drag-and-drop states */
+.module-tile.dragging {
+  opacity: 0.38;
+  border-style: dashed;
+}
+
+.module-tile.drag-over {
+  border-color: var(--accent);
+  border-style: dashed;
+  box-shadow: 0 0 0 3px rgba(200, 32, 50, 0.22);
+  background: #fff5f6;
+}
+
+.tile-num {
   grid-row: 1 / 3;
+  display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
-  color: white;
-  background: var(--dark);
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   font-size: 0.6875rem;
   font-weight: 800;
+  color: white;
 }
+
+.type-base .tile-num, .tile-num.type-base  { background: #2251c5; }
+.type-tall .tile-num, .tile-num.type-tall  { background: #6b22c5; }
+.type-wall .tile-num, .tile-num.type-wall  { background: #167840; }
 
 .module-tile strong {
   min-width: 0;
@@ -358,36 +398,10 @@ p {
   line-height: 1.3;
 }
 
-.type-badge {
-  display: inline-block;
-  padding: 0.05rem 0.3rem;
-  border-radius: 3px;
-  font-size: 0.625rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.type-base  { background: #e8f0ff; color: #2251c5; }
-.type-tall  { background: #f0e8ff; color: #6b22c5; }
-.type-wall  { background: #e8faee; color: #167840; }
-
-.empty-hint {
-  margin: 0 0 0.6rem;
-  color: var(--muted);
-  font-size: 0.875rem;
-}
-
-.module-tile.active,
-.preset-card.active,
-.swatch.active {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(200, 32, 50, 0.18);
-}
-
-/* ─── Правая панель — контролы ───────────────────────────── */
+/* ─── Правая панель ──────────────────────────────────────── */
 .control-dock {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0;
   align-self: start;
 }
@@ -414,20 +428,40 @@ p {
 
 .dock-title svg { color: var(--accent); flex-shrink: 0; }
 
-/* ─── Пресеты размеров ───────────────────────────────────── */
+.dock-label {
+  margin: 0.65rem 0 0.35rem;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* ─── Пресеты ────────────────────────────────────────────── */
 .preset-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.45rem;
-  margin-bottom: 0.6rem;
+  gap: 0.4rem;
 }
 
 .preset-card {
   display: grid;
-  gap: 0.12rem;
-  min-height: 64px;
+  gap: 0.1rem;
+  min-height: 68px;
   padding: 0.55rem 0.6rem;
   text-align: left;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.preset-card:hover { border-color: var(--accent); }
+
+.preset-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(200, 32, 50, 0.18);
 }
 
 .preset-card strong {
@@ -442,27 +476,33 @@ p {
   font-weight: 800;
 }
 
-/* ─── Переключатель схемы ────────────────────────────────── */
+.preset-card small {
+  color: var(--muted);
+  font-size: 0.6875rem;
+  line-height: 1.3;
+}
+
+/* ─── Переключатель ──────────────────────────────────────── */
 .segmented {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.3rem;
-  padding: 0.3rem;
+  gap: 0.28rem;
+  padding: 0.28rem;
   background: var(--soft);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
 }
 
 .segmented button {
-  min-height: 36px;
+  min-height: 34px;
   border: 1px solid transparent;
   border-radius: 4px;
   background: transparent;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   color: var(--muted);
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.14s, color 0.14s;
 }
 
 .segmented button:hover { color: var(--ink); }
@@ -479,7 +519,7 @@ p {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.55rem;
   padding: 0.65rem 0.75rem;
   background: var(--soft);
   border: 1px solid var(--line);
@@ -490,10 +530,10 @@ p {
   display: block;
   color: var(--muted);
   font-size: 0.6875rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.15rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.1rem;
 }
 
 .selected-module strong {
@@ -507,12 +547,12 @@ p {
   display: block;
   color: var(--muted);
   font-size: 0.75rem;
-  margin-top: 0.1rem;
+  margin-top: 0.08rem;
 }
 
 .icon-actions {
   display: flex;
-  gap: 0.3rem;
+  gap: 0.28rem;
   flex-shrink: 0;
 }
 
@@ -521,67 +561,120 @@ p {
   place-items: center;
   width: 32px;
   height: 32px;
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  transition: background 0.12s;
+  background: white;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
 }
 
-.icon-actions button:hover { background: #f0e8dc; }
+.icon-actions button:hover { background: var(--soft); border-color: var(--muted); }
+
+.icon-actions button.icon-delete:hover {
+  background: #fff0f0;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.empty-hint {
+  margin: 0 0 0.6rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
 
 /* ─── Добавить модуль ────────────────────────────────────── */
 .module-picker {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: 0.32rem;
 }
 
 .module-picker button {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  height: 30px;
-  padding: 0 0.6rem;
+  gap: 0.28rem;
+  height: 28px;
+  padding: 0 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: white;
+  cursor: pointer;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
+  transition: border-color 0.12s, box-shadow 0.12s;
 }
 
-/* ─── Цвета ──────────────────────────────────────────────── */
-.swatches { display: grid; gap: 0.4rem; }
+.module-picker button:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.picker-dot {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 0.5625rem;
+  font-weight: 900;
+  color: white;
+  flex-shrink: 0;
+}
+
+.picker-dot.type-base { background: #2251c5; }
+.picker-dot.type-tall { background: #6b22c5; }
+.picker-dot.type-wall { background: #167840; }
+
+/* ─── Цветные свотчи ─────────────────────────────────────── */
+.swatches { display: grid; gap: 0.38rem; }
 
 .swatch {
   display: grid;
   grid-template-columns: 26px 1fr;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.58rem;
   min-height: 38px;
   padding: 0.45rem 0.6rem;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: white;
+  cursor: pointer;
   font-size: 0.8125rem;
   font-weight: 600;
   text-align: left;
+  transition: border-color 0.14s;
+}
+
+.swatch:hover { border-color: var(--accent); }
+
+.swatch.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(200, 32, 50, 0.18);
 }
 
 .swatch span {
-  width: 24px;
-  height: 24px;
-  border: 1.5px solid rgba(45, 39, 35, 0.18);
+  width: 26px;
+  height: 26px;
+  border: 1.5px solid rgba(45, 39, 35, 0.15);
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-/* ─── AR-блок ────────────────────────────────────────────── */
+/* ─── Статус размеров ────────────────────────────────────── */
 .fit {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
   min-height: 34px;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.6rem;
   border-radius: var(--radius-sm);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   width: 100%;
 }
 
-.fit.ready  { color: #166534; background: #dcfce7; }
+.fit.ready   { color: #166534; background: #dcfce7; }
 .fit.warning { color: #92400e; background: #fef3c7; }
 
 /* ─── Кнопки ─────────────────────────────────────────────── */
@@ -589,7 +682,7 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
+  gap: 0.42rem;
   min-height: 42px;
   padding: 0.65rem 1.1rem;
   border: 1.5px solid transparent;
@@ -609,7 +702,7 @@ p {
 
 .button.primary:hover {
   background: var(--accent-dark);
-  box-shadow: 0 4px 12px rgba(200, 32, 50, 0.3);
+  box-shadow: 0 4px 12px rgba(200, 32, 50, 0.28);
 }
 
 .button.ghost-dark {
@@ -626,11 +719,11 @@ p {
 /* ─── AR-секция ──────────────────────────────────────────── */
 .ar-section {
   display: none;
-  grid-template-columns: 1fr 220px minmax(280px, 0.8fr);
+  grid-template-columns: 1fr 220px minmax(280px, 0.85fr);
   gap: 1rem;
-  max-width: 1440px;
+  max-width: 1540px;
   margin: 0 auto 1.25rem;
-  padding: 1.5rem;
+  padding: 1.5rem 1.25rem;
 }
 
 .ar-section.visible,
@@ -677,7 +770,14 @@ p {
   color: var(--accent);
   font-size: 0.875rem;
   font-weight: 700;
+  border: 1.5px dashed var(--line);
+  border-radius: var(--radius-sm);
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.14s;
 }
+
+.qr-card button:hover { border-color: var(--accent); }
 
 .qr-card small {
   display: block;
@@ -704,7 +804,7 @@ p {
 
 /* ─── Блок заявки ────────────────────────────────────────── */
 .request-section {
-  max-width: 860px;
+  max-width: 880px;
   margin: 0 auto 3rem;
   padding: 0;
   overflow: hidden;
@@ -716,7 +816,7 @@ p {
   justify-content: center;
   gap: 0.5rem;
   width: 100%;
-  min-height: 52px;
+  min-height: 54px;
   padding: 0 1.5rem;
   color: var(--ink);
   background: var(--soft);
@@ -729,7 +829,7 @@ p {
   transition: background 0.15s;
 }
 
-.collapse-button:hover { background: #e8ddd1; }
+.collapse-button:hover { background: #e6ddd1; }
 .collapse-button svg { color: var(--accent); }
 
 .request-form {
@@ -740,18 +840,18 @@ p {
 }
 
 .request-form input {
-  height: 44px;
+  height: 46px;
 }
 
 .request-form textarea {
   grid-column: 1 / -1;
   resize: vertical;
-  min-height: 90px;
+  min-height: 96px;
 }
 
 .request-form .button {
   grid-column: 1 / -1;
-  max-width: 260px;
+  max-width: 240px;
   justify-self: end;
 }
 
@@ -774,19 +874,20 @@ p {
   box-shadow: 0 0 0 3px rgba(200, 32, 50, 0.1);
 }
 
-/* ─── Адаптив 1180px ──────────────────────────────────────── */
-@media (max-width: 1180px) {
+/* ─── Адаптив 1240px ─────────────────────────────────────── */
+@media (max-width: 1240px) {
   .workspace {
-    grid-template-columns: 230px 1fr;
+    grid-template-columns: 224px 1fr;
   }
 
   .control-dock {
     grid-column: 1 / -1;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 
   .control-dock section {
+    flex: 1 1 200px;
     border-bottom: none;
     border-right: 1px solid var(--line);
   }
@@ -799,12 +900,10 @@ p {
     grid-template-columns: 1fr 220px;
   }
 
-  .model-viewer {
-    grid-column: 1 / -1;
-  }
+  .model-viewer { grid-column: 1 / -1; }
 }
 
-/* ─── Адаптив 820px ───────────────────────────────────────── */
+/* ─── Адаптив 820px ──────────────────────────────────────── */
 @media (max-width: 820px) {
   .topbar {
     justify-content: flex-start;
@@ -825,39 +924,32 @@ p {
     gap: 0.6rem;
   }
 
-  .stepper { flex-wrap: wrap; }
-
   .product-rail {
     display: grid;
-    grid-template-columns: 120px 1fr;
+    grid-template-columns: 116px 1fr;
   }
 
-  .product-rail img {
-    height: 100%;
-    min-height: 140px;
-  }
+  .product-rail img { height: 100%; min-height: 140px; }
 
   .control-dock {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
 
   .control-dock section {
-    border-right: none;
-    border-bottom: 1px solid var(--line);
+    border-right: none !important;
+    border-bottom: 1px solid var(--line) !important;
   }
 
   .control-dock section:last-child {
-    border-bottom: none;
+    border-bottom: none !important;
   }
 
   .preview-shell {
-    height: 420px;
-    min-height: 360px;
+    height: min(52vh, 480px);
+    min-height: 380px;
   }
 
-  .ar-section {
-    grid-template-columns: 1fr;
-  }
+  .ar-section { grid-template-columns: 1fr; }
 
   .request-section {
     margin-left: 0.875rem;
@@ -870,9 +962,7 @@ p {
   }
 
   .request-form textarea,
-  .request-form .button {
-    grid-column: 1;
-  }
+  .request-form .button { grid-column: 1; }
 
   .request-form .button {
     max-width: 100%;
@@ -880,24 +970,12 @@ p {
   }
 }
 
-/* ─── Адаптив 520px ───────────────────────────────────────── */
+/* ─── Адаптив 520px ──────────────────────────────────────── */
 @media (max-width: 520px) {
-  .product-rail {
-    grid-template-columns: 1fr;
-  }
-
+  .product-rail { grid-template-columns: 1fr; }
   .product-rail img { height: 160px; }
-
-  .preset-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .module-strip {
-    grid-auto-columns: 120px;
-  }
-
-  .preview-shell {
-    height: 360px;
-    min-height: 320px;
-  }
+  .preset-grid { grid-template-columns: 1fr; }
+  .module-strip { grid-auto-columns: 122px; }
+  .preview-shell { height: min(48vh, 400px); min-height: 340px; }
+  .strip-hint { font-size: 0.6875rem; }
 }
