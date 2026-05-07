@@ -1,5 +1,5 @@
 import '@google/model-viewer';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Camera,
   Check,
@@ -25,7 +25,7 @@ import KitchenPreview from './components/KitchenPreview.jsx';
 import { defaultLayout, kitchenModules, kitchenSizePresets, materials } from './data/kitchen.js';
 
 const heroImage = 'https://kitchenrm.ru/wa-data/public/shop/products/03/19/1903/images/18695/18695.970.jpg';
-const modelUrl = '/models/kitchen-rm-demo.glb';
+const modelUrl = '/models/kitchen-rm-ar.glb';
 
 const pilotKitchen = {
   title: 'Кухня «Графит шагрень 2200×2400»',
@@ -41,9 +41,9 @@ function getModuleById(id) {
 }
 
 function buildArLink({ sizePreset, material, scheme, cornerSide, layout }) {
-  if (typeof window === 'undefined') return '#ar-view';
-  const url = new URL(window.location.href);
-  url.hash = 'ar-view';
+  if (typeof window === 'undefined') return '/ar';
+  const url = new URL('/ar', window.location.origin);
+  url.searchParams.set('open', '1');
   url.searchParams.set('size', `${sizePreset.mainWall}x${sizePreset.sideWall}`);
   url.searchParams.set('scheme', scheme);
   url.searchParams.set('corner', cornerSide);
@@ -53,6 +53,180 @@ function buildArLink({ sizePreset, material, scheme, cornerSide, layout }) {
 }
 
 export default function App() {
+  const pathname = typeof window === 'undefined' ? '/' : window.location.pathname.replace(/\/$/, '');
+  if (pathname === '/ar') return <ArExperience />;
+
+  return <ConstructorExperience />;
+}
+
+function ArExperience() {
+  const viewerRef = useRef(null);
+  const [status, setStatus] = useState('loading');
+
+  const openAr = async () => {
+    const viewer = viewerRef.current;
+    if (!viewer?.activateAR) return;
+
+    try {
+      await viewer.activateAR();
+      setStatus('started');
+    } catch {
+      setStatus('manual');
+    }
+  };
+
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer) return undefined;
+
+    const params = new URLSearchParams(window.location.search);
+    const shouldOpen = params.get('open') === '1';
+    const onLoad = () => {
+      setStatus('ready');
+      if (shouldOpen) window.setTimeout(() => openAr(), 450);
+    };
+
+    viewer.addEventListener('load', onLoad);
+    return () => viewer.removeEventListener('load', onLoad);
+  }, []);
+
+  return (
+    <main className="ar-page">
+      <style>
+        {`
+          .ar-page {
+            min-height: 100vh;
+            background: linear-gradient(180deg, rgba(255, 250, 243, 0.96), rgba(244, 237, 227, 0.92)) #f4ede3;
+          }
+
+          .ar-page-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 5;
+            width: 100%;
+            padding: 0.65rem 0.875rem;
+            background: rgba(255, 250, 243, 0.94);
+            border-bottom: 1px solid var(--line);
+            backdrop-filter: blur(14px);
+          }
+
+          .ar-stage {
+            position: relative;
+            display: grid;
+            min-height: 100vh;
+            padding-top: 66px;
+            overflow: hidden;
+          }
+
+          .ar-viewer {
+            width: 100%;
+            height: calc(100vh - 66px);
+            min-height: 560px;
+            background:
+              radial-gradient(circle at 50% 24%, rgba(255,255,255,0.98), rgba(238,228,216,0.62) 44%, rgba(218,203,185,0.78)),
+              #efe6da;
+          }
+
+          .ar-panel {
+            position: absolute;
+            left: 1rem;
+            bottom: 1rem;
+            display: grid;
+            gap: 0.55rem;
+            width: min(420px, calc(100% - 2rem));
+            padding: 1rem;
+            background: rgba(255, 250, 243, 0.94);
+            border: 1px solid rgba(226, 214, 200, 0.96);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(16px);
+          }
+
+          .ar-panel h1 {
+            margin-bottom: 0;
+            font-size: clamp(1.25rem, 4vw, 1.75rem);
+          }
+
+          .ar-panel p {
+            margin-bottom: 0;
+          }
+
+          .ar-panel small {
+            color: var(--muted);
+            font-size: 0.75rem;
+            font-weight: 600;
+          }
+
+          @media (max-width: 640px) {
+            .ar-stage { padding-top: 58px; }
+            .ar-viewer { height: calc(100vh - 58px); min-height: 520px; }
+            .ar-panel {
+              left: 0.75rem;
+              bottom: 0.75rem;
+              width: calc(100% - 1.5rem);
+            }
+          }
+        `}
+      </style>
+      <header className="ar-page-header">
+        <a className="brand" href="/" aria-label="Кухни РМ">
+          <span className="brand-mark">РМ</span>
+          <span>
+            <strong>Кухни РМ</strong>
+            <small>AR-примерка кухни 2200×2400</small>
+          </span>
+        </a>
+      </header>
+
+      <section className="ar-stage" aria-label="AR-примерка кухни РМ">
+        <model-viewer
+          ref={viewerRef}
+          className="ar-viewer"
+          src={modelUrl}
+          ar
+          ar-modes="scene-viewer webxr quick-look"
+          ar-placement="floor"
+          ar-scale="fixed"
+          camera-controls
+          touch-action="pan-y"
+          auto-rotate
+          rotation-per-second="18deg"
+          shadow-intensity="0.85"
+          shadow-softness="0.72"
+          exposure="1"
+          camera-orbit="35deg 68deg 4.2m"
+          min-camera-orbit="auto 48deg 2.2m"
+          max-camera-orbit="auto 82deg 6.2m"
+          interaction-prompt="none"
+        >
+          <button className="button primary ar-launch" slot="ar-button">
+            <Camera size={17} /> Открыть в AR
+          </button>
+        </model-viewer>
+
+        <div className="ar-panel">
+          <p className="eyebrow">AR-модель кухни РМ</p>
+          <h1>Поставьте кухню на пол и передвиньте к углу</h1>
+          <p>
+            Размер демо-модели настроен под кухню 2200×2400 мм. После запуска AR наведите телефон
+            на пол, поставьте модель и пальцем сдвиньте ее к нужному углу.
+          </p>
+          <button className="button primary" type="button" onClick={openAr}>
+            <Camera size={17} /> Смотреть в AR
+          </button>
+          <small>
+            {status === 'loading'
+              ? 'Загружаю 3D-модель...'
+              : 'Если AR не открылся автоматически, нажмите кнопку.'}
+          </small>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function ConstructorExperience() {
   const [sizePresetId, setSizePresetId] = useState('original');
   const [scheme, setScheme] = useState('corner');
   const [cornerSide, setCornerSide] = useState('right');
@@ -186,7 +360,7 @@ export default function App() {
           </a>
           <div className="nav-links">
             <a href="#constructor">Конструктор</a>
-            <a href="#ar-view">AR</a>
+            <a href={arUrl}>AR</a>
             <a href="#request">Заявка</a>
           </div>
         </nav>
@@ -390,8 +564,8 @@ export default function App() {
           <p className="eyebrow">AR-сцена текущей сборки</p>
           <h2>QR открывает модель кухни на телефоне</h2>
           <p>
-            На компьютере клиент видит QR. На телефоне открывается эта же сборка с кнопкой
-            AR — можно поставить кухню в свою комнату.
+            На компьютере клиент видит QR. На телефоне открывается отдельная AR-страница без
+            конструктора — можно поставить кухню на пол и сдвинуть ее к углу.
           </p>
           <div className="ar-actions">
             <a className="button ghost-dark" href={arUrl}>
@@ -418,6 +592,8 @@ export default function App() {
           src={modelUrl}
           ar
           ar-modes="webxr scene-viewer quick-look"
+          ar-placement="floor"
+          ar-scale="fixed"
           camera-controls
           auto-rotate
           shadow-intensity="0.7"
