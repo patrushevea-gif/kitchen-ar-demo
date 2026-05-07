@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/ar",
+      "destination": "/index.html"
+    }
+  ]
+}
