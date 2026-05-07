@@ -193,6 +193,7 @@ function ArExperience() {
           ar-modes="scene-viewer webxr quick-look"
           ar-placement="floor"
           ar-scale="fixed"
+          scale="1.15 1.15 1.15"
           camera-controls
           touch-action="pan-y"
           auto-rotate
@@ -599,6 +600,7 @@ function ConstructorExperience() {
           ar-modes="webxr scene-viewer quick-look"
           ar-placement="floor"
           ar-scale="fixed"
+          scale="1.15 1.15 1.15"
           camera-controls
           auto-rotate
           shadow-intensity="0.7"
